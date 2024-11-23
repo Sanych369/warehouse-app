@@ -20,8 +20,7 @@ CREATE TABLE users
     surname  VARCHAR(255),
     position VARCHAR(255),
     email    VARCHAR(255) UNIQUE ,
-    password VARCHAR(255),
-    role     VARCHAR(255)
+    password VARCHAR(255)
 );
 
 CREATE TABLE companies

@@ -1,9 +1,8 @@
 package ru.damrin.app.db.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -16,6 +15,7 @@ import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import ru.damrin.app.common.converter.PositionConverter;
 import ru.damrin.app.common.enums.Position;
 
 import java.util.Collection;
@@ -38,7 +38,7 @@ public class WarehouseUserEntity implements UserDetails {
 
   private String surname;
 
-  @Enumerated(EnumType.STRING)
+  @Convert(converter = PositionConverter.class)
   private Position position;
 
   @Column(unique = true)
@@ -46,12 +46,9 @@ public class WarehouseUserEntity implements UserDetails {
 
   private String password;
 
-  @Enumerated(EnumType.STRING)
-  private Position role;
-
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority(role.name()));
+    return List.of(new SimpleGrantedAuthority(position.name()));
   }
 
   @Override
