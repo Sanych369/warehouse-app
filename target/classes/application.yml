@@ -1,0 +1,19 @@
+spring:
+  flyway:
+    locations:
+      - classpath:db/init
+  application:
+    name: warehouse-app
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      schema: damrin_app
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate

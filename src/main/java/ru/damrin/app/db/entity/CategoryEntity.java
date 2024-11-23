@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +18,8 @@ import lombok.Setter;
 import ru.damrin.app.common.converter.CategoryConverter;
 import ru.damrin.app.common.enums.GoodCategory;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -37,7 +39,17 @@ public class CategoryEntity {
   private GoodCategory category;
 
   @OneToMany(mappedBy = "category",
+      fetch = FetchType.EAGER,
       cascade = CascadeType.ALL,
       orphanRemoval = true)
-  private List<GoodEntity> goods;
+  private Set<GoodEntity> goods = new HashSet<>();
+
+  public void addGood(GoodEntity good) {
+    good.setCategory(this);
+    goods.add(good);
+  }
+
+  public void removeGood(GoodEntity good) {
+    goods.remove(good);
+  }
 }
