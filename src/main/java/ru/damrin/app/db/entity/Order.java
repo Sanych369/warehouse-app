@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -29,10 +29,11 @@ public class Order {
   private Long id;
 
   @Column(name = "user_id")
-  private  Long userId;
+  private Long userId;
 
+  @Column(name = "company_id")
   private Long companyId;
 
   @OneToMany
-  private List<GoodEntity> goods;
+  private Set<GoodEntity> goods;
 }

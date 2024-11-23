@@ -10,4 +10,9 @@ public class WarehouseAppException extends RuntimeException {
   private String message;
   private String description;
 
+  public WarehouseAppException(String message) {
+    this.message = message;
+    this.description = null;
+  }
+
 }
