@@ -38,6 +38,7 @@ public class CategoryEntity {
   @Column(name = "category")
   private GoodCategory category;
 
+  @Builder.Default
   @OneToMany(mappedBy = "category",
       fetch = FetchType.EAGER,
       cascade = CascadeType.ALL,
