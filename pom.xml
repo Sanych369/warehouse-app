@@ -77,8 +77,11 @@
             <artifactId>poi</artifactId>
             <version>${apache.poi.version}</version>
         </dependency>
-
-
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi-ooxml</artifactId>
+            <version>${apache.poi.version}</version>
+        </dependency>
 
         <!-- TEST -->
         <dependency>
@@ -90,6 +93,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.xmlunit</groupId>
+                    <artifactId>xmlunit-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

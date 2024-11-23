@@ -34,6 +34,6 @@ public class Order {
   @Column(name = "company_id")
   private Long companyId;
 
-  @OneToMany
+  @OneToMany(mappedBy = "order")
   private Set<GoodEntity> goods;
 }

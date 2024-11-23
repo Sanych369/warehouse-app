@@ -49,6 +49,11 @@ public class GoodEntity {
     @Column(name = "quantity")
     private Long quantity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;

@@ -40,7 +40,6 @@ public class CategoryEntity {
 
   @Builder.Default
   @OneToMany(mappedBy = "category",
-      fetch = FetchType.EAGER,
       cascade = CascadeType.ALL,
       orphanRemoval = true)
   private Set<GoodEntity> goods = new HashSet<>();
