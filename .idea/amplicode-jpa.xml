@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="AmplicodeJpaIdeaProjectConfig" ddlActionDbType="postgres" newRepositoryParent="org.springframework.data.jpa.repository.JpaRepository">
-    <option name="defaultUnitInitialized" value="true" />
-    <option name="renamerInitialized" value="true" />
-    <option name="sourceModelValue" value="Default" />
-    <option name="targetDbValue" value="b821e292-7df4-4edd-9d34-c1c239d96673" />
-  </component>
-</project>

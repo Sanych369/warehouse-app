@@ -40,17 +40,5 @@ CREATE TABLE orders
     company_id BIGINT
 );
 
-CREATE TABLE orders_goods
-(
-    order_id BIGINT NOT NULL,
-    goods_id BIGINT UNIQUE NOT NULL
-);
-
-ALTER TABLE orders_goods
-    ADD CONSTRAINT fk_orders_on_goods FOREIGN KEY (goods_id) REFERENCES goods (id);
-
-ALTER TABLE orders_goods
-    ADD CONSTRAINT fk_orders_on_order FOREIGN KEY (order_id) REFERENCES orders (id);
-
 ALTER TABLE goods
     ADD CONSTRAINT fk_goods_on_category FOREIGN KEY (category_id) REFERENCES categories (id);
