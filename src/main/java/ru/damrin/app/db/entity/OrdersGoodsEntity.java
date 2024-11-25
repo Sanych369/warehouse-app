@@ -1,9 +1,13 @@
 package ru.damrin.app.db.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,18 +22,21 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "companies")
-public class Company {
+@Table(name = "orders_goods")
+public class OrdersGoodsEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne(mappedBy = "company")
+  @OneToOne
+  @JoinColumn(name = "good_name")
+  private GoodEntity goodEntities;
+
+
+  @ManyToOne(fetch = FetchType.LAZY)
   private Order order;
 
-  private String name;
-  private String address;
-  private String phone;
-  private String email;
+  @Column(name = "goods_quantity")
+  private Long quantity;
 }
