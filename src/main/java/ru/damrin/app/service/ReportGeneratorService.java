@@ -103,7 +103,7 @@ public class ReportGeneratorService {
 
       cell = row.createCell(cellNum);
       cell.setCellValue(order.getOrdersGoods().stream()
-          .map(x -> x.getGoodEntities().getPrice().multiply(BigDecimal.valueOf(x.getQuantity())))
+          .map(x -> x.getGoodEntities().getSalePrice().multiply(BigDecimal.valueOf(x.getQuantity())))
           .reduce(BigDecimal.ZERO, BigDecimal::add).toString());
       cell.setCellStyle(style);
 

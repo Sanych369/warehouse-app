@@ -1,15 +1,16 @@
 CREATE TABLE category
 (
-    name          VARCHAR(255) PRIMARY KEY,
-    markup_percentage DECIMAL
+    name              VARCHAR(255) PRIMARY KEY,
+    markup_percentage DECIMAL DEFAULT 0
 );
 
 CREATE TABLE goods
 (
-    name        VARCHAR(255) PRIMARY KEY,
-    category_name VARCHAR(255),
-    price       DECIMAL,
-    balance     BIGINT NOT NULL DEFAULT 0
+    name           VARCHAR(255) PRIMARY KEY,
+    category_name  VARCHAR(255) NOT NULL,
+    sale_price     DECIMAL      NOT NULL,
+    purchase_price DECIMAL      NOT NULL,
+    balance        BIGINT       NOT NULL DEFAULT 0
 );
 
 CREATE TABLE orders_goods
