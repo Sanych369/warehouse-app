@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: warehouse-app
+  config:
+    import: application-db.yml

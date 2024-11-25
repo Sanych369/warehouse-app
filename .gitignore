@@ -1,0 +1,13 @@
+*.iml
+.idea
+.git
+/target/
+amplicode.xml
+!pom.xml\
+
+ # игнорирует все файлы .md
+.md
+# не игнорирует файл README.md
+!README.md
+
+*.xlsx
