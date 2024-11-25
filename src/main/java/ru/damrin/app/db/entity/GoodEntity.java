@@ -33,12 +33,15 @@ public class GoodEntity {
     private String name;
 
     @Enumerated(EnumType.STRING)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "category_name")
     private CategoryEntity category;
 
-    @Column(name = "price")
-    private BigDecimal price;
+    @Column(name = "purchase_price")
+    private BigDecimal purchasePrice;
+
+    @Column(name = "sale_price")
+    private BigDecimal salePrice;
 
     @Column(name = "balance")
     private Long balance;
