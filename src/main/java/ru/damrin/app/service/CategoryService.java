@@ -17,17 +17,14 @@ public class CategoryService {
 
     public List<CategoryDto> getAllCategories() {
         return categoryRepository.findAll().stream()
-                .map(category -> new CategoryDto(
-                        category.getId(),
-                        category.getCategory()
-                ))
+                .map(category -> new CategoryDto(category.getName()))
                 .toList();
     }
 
 
     public void addCategory(CategoryDto categoryDto) {
         CategoryEntity category = CategoryEntity.builder()
-                .category(categoryDto.category())
+                .name(categoryDto.name())
                 .build();
         categoryRepository.save(category);
     }
