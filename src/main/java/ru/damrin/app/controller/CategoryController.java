@@ -30,8 +30,8 @@ public class CategoryController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Void> deleteCategoryById(@RequestParam Long id) {
-        categoryService.deleteCategoryById(id);
+    public ResponseEntity<Void> deleteCategoryById(@RequestParam String name) {
+        categoryService.deleteCategoryById(name);
         return ResponseEntity.noContent().build();
     }
 }
