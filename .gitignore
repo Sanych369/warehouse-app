@@ -10,3 +10,4 @@ amplicode.xml
 # не игнорирует файл README.md
 !README.md
 
+*.xlsx

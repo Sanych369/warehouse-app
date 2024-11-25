@@ -1,4 +1,4 @@
-package ru.damrin.app.security;
+package ru.damrin.app.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
