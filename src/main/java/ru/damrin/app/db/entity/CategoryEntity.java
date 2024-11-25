@@ -27,16 +27,12 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "categories")
+@Table(name = "category")
 public class CategoryEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
-  @Convert(converter = CategoryConverter.class)
-  @Column(name = "category")
-  private GoodCategory category;
+  @Column(name = "name")
+  private String name;
 
   @Builder.Default
   @OneToMany(mappedBy = "category",

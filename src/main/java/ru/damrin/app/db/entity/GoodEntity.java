@@ -34,15 +34,11 @@ public class GoodEntity {
 
     @Enumerated(EnumType.STRING)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_name")
     private CategoryEntity category;
 
     @Column(name = "price")
     private BigDecimal price;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "order_id")
-//    private Order order;
 
     @Column(name = "balance")
     private Long balance;
