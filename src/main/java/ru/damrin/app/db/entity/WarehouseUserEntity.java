@@ -49,6 +49,7 @@ public class WarehouseUserEntity implements UserDetails {
 
   private String password;
 
+  @Builder.Default
   @OneToMany(mappedBy = "user")
   Set<Order> orders = new HashSet<>();
 
