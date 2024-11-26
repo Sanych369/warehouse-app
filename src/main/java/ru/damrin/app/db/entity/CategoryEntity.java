@@ -2,23 +2,23 @@ package ru.damrin.app.db.entity;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PreRemove;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.damrin.app.common.converter.CategoryConverter;
-import ru.damrin.app.common.enums.GoodCategory;
+import ru.damrin.app.common.exception.WarehouseAppException;
 
-import java.util.HashSet;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Set;
 
 @Entity
@@ -31,21 +31,29 @@ import java.util.Set;
 public class CategoryEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   @Column(name = "name")
   private String name;
 
-  @Builder.Default
+  @Column(name = "markup_percentage")
+  private BigDecimal markupPercentage;
+
   @OneToMany(mappedBy = "category",
       cascade = CascadeType.ALL,
       orphanRemoval = true)
-  private Set<GoodEntity> goods = new HashSet<>();
+  private Set<GoodEntity> goods;
 
-  public void addGood(GoodEntity good) {
-    good.setCategory(this);
-    goods.add(good);
+  @PreRemove
+  private void preRemove() {
+    if (goods.stream().map(GoodEntity::getBalance).anyMatch(balance -> balance > 0)) {
+      throw new WarehouseAppException("Есть остатки товаров. Внимательнее");
+    }
   }
 
-  public void removeGood(GoodEntity good) {
-    goods.remove(good);
+  @PreUpdate //SaveAndFlush
+  private void preUpdate() {
+    goods.iterator().forEachRemaining(x -> x.setSalePrice(x.getPurchasePrice().add(x.getPurchasePrice().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP).multiply(this.markupPercentage))));
   }
 }

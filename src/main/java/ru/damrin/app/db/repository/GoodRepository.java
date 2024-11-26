@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 import ru.damrin.app.db.entity.GoodEntity;
 
 @Repository
-public interface GoodRepository extends JpaRepository<GoodEntity, Long> {
+public interface GoodRepository extends JpaRepository<GoodEntity, String> {
 }

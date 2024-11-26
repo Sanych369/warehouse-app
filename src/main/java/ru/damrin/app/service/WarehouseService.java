@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.db.entity.Order;
-import ru.damrin.app.db.repository.CategoryEntityRepository;
 import ru.damrin.app.db.repository.OrdersRepository;
 
 import java.io.File;
@@ -20,7 +19,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class WarehouseService {
 
-  private final CategoryEntityRepository repository;
   private final OrdersRepository ordersRepository;
   private final ReportGeneratorService reportGeneratorService;
 
@@ -35,5 +33,4 @@ public class WarehouseService {
     Files.write(Path.of(file.getPath()), bytes);
     log.info("End");
   }
-
 }

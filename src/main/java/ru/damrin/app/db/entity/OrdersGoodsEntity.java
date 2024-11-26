@@ -30,7 +30,7 @@ public class OrdersGoodsEntity {
   private Long id;
 
   @OneToOne
-  @JoinColumn(name = "good_name")
+  @JoinColumn(name = "good_id")
   private GoodEntity goodEntities;
 
 
