@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -30,12 +32,15 @@ import java.util.Objects;
 public class GoodEntity {
 
   @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
   @Column(name = "name")
   private String name;
 
   @Enumerated(EnumType.STRING)
   @ManyToOne
-  @JoinColumn(name = "category_name")
+  @JoinColumn(name = "category_id")
   private CategoryEntity category;
 
   @Column(name = "purchase_price")
