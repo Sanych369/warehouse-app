@@ -54,6 +54,17 @@ public class CategoryEntity {
 
   @PreUpdate //SaveAndFlush
   private void preUpdate() {
-    goods.iterator().forEachRemaining(x -> x.setSalePrice(x.getPurchasePrice().add(x.getPurchasePrice().divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP).multiply(this.markupPercentage))));
+    goods.iterator().forEachRemaining(this::recalculate);
+  }
+
+  /**
+   * Метод обновления наценки товара при изменении категории.
+   * @param good - товар в текущей категории
+   */
+  private void recalculate(GoodEntity good) {
+    good.setSalePrice(good.getPurchasePrice().add(
+        good.getPurchasePrice()
+            .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+            .multiply(this.markupPercentage)));
   }
 }
