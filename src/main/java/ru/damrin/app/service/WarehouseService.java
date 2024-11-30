@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.damrin.app.db.entity.Order;
+import ru.damrin.app.db.entity.OrderEntity;
 import ru.damrin.app.db.repository.OrdersRepository;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class WarehouseService {
     if (!file.exists()) {
       file.createNewFile();
     }
-    Set<Order> orderSet = ordersRepository.findAllByCreatedAtBefore(LocalDate.now());
+    Set<OrderEntity> orderSet = ordersRepository.findAllByCreatedAtBefore(LocalDate.now());
     byte[] bytes = reportGeneratorService.generateSaleReport(orderSet, "Отчёт");
     Files.write(Path.of(file.getPath()), bytes);
     log.info("End");

@@ -7,6 +7,6 @@ import ru.damrin.app.db.entity.CategoryEntity;
 import java.util.Optional;
 
 @Repository
-public interface CategoryEntityRepository extends JpaRepository<CategoryEntity, Long> {
+public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
   Optional<CategoryEntity> findFirstByName(String name);
 }

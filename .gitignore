@@ -3,11 +3,9 @@
 .git
 /target/
 amplicode.xml
-!pom.xml\
-
- # игнорирует все файлы .md
-.md
-# не игнорирует файл README.md
-!README.md
-
 *.xlsx
+.md
+
+# не игнорирует файлы
+!README.md
+!pom.xml

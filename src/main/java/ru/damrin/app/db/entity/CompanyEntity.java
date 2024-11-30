@@ -19,14 +19,14 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "companies")
-public class Company {
+public class CompanyEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @OneToOne(mappedBy = "company")
-  private Order order;
+  private OrderEntity order;
 
   private String name;
   private String address;

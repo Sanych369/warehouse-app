@@ -35,7 +35,7 @@ public class OrdersGoodsEntity {
 
 
   @ManyToOne(fetch = FetchType.LAZY)
-  private Order order;
+  private OrderEntity order;
 
   @Column(name = "goods_quantity")
   private Long quantity;

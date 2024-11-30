@@ -31,7 +31,7 @@ import java.util.Set;
 @Table(name = "users")
 @NoArgsConstructor
 @AllArgsConstructor
-public class WarehouseUserEntity implements UserDetails {
+public class UserEntity implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -51,7 +51,7 @@ public class WarehouseUserEntity implements UserDetails {
 
   @Builder.Default
   @OneToMany(mappedBy = "user")
-  Set<Order> orders = new HashSet<>();
+  Set<OrderEntity> orders = new HashSet<>();
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {

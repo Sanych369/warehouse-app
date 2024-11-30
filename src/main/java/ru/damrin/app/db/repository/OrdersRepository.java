@@ -2,14 +2,13 @@ package ru.damrin.app.db.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import ru.damrin.app.db.entity.Order;
+import ru.damrin.app.db.entity.OrderEntity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Repository
-public interface OrdersRepository extends JpaRepository<Order, Long> {
+public interface OrdersRepository extends JpaRepository<OrderEntity, Long> {
 
-  Set<Order> findAllByCreatedAtBefore(LocalDate createdAt);
+  Set<OrderEntity> findAllByCreatedAtBefore(LocalDate createdAt);
 }

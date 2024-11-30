@@ -15,7 +15,7 @@ import org.apache.poi.xssf.usermodel.XSSFFont;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
-import ru.damrin.app.db.entity.Order;
+import ru.damrin.app.db.entity.OrderEntity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
 @Service
 public class ReportGeneratorService {
   //TODO: "Отчёт %s-%s"
-  public byte[] generateSaleReport(Set<Order> orders, String sheetName) {
+  public byte[] generateSaleReport(Set<OrderEntity> orders, String sheetName) {
     XSSFWorkbook workbook = new XSSFWorkbook();
 
     Sheet sheet = workbook.createSheet(String.format(sheetName));
@@ -68,7 +68,7 @@ public class ReportGeneratorService {
     headerCell.setCellStyle(headerStyle);
 
     int rowNum = 1;
-    for (Order order : orders) {
+    for (OrderEntity order : orders) {
 
       int cellNum = 0;
 
