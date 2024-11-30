@@ -2,11 +2,6 @@ package ru.damrin.app.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.damrin.app.db.entity.GoodEntity;
-import ru.damrin.app.db.repository.GoodRepository;
-import ru.damrin.app.model.GoodDto;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

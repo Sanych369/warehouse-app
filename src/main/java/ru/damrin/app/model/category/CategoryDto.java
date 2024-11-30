@@ -1,4 +1,4 @@
-package ru.damrin.app.model;
+package ru.damrin.app.model.category;
 
 import java.math.BigDecimal;
 

@@ -7,7 +7,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.damrin.app.db.entity.CategoryEntity;
-import ru.damrin.app.model.CategoryDto;
+import ru.damrin.app.model.category.CategoryDto;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING,
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.repository.CategoryRepository;
 import ru.damrin.app.mapper.CategoryMapper;
-import ru.damrin.app.model.CategoryDto;
+import ru.damrin.app.model.category.CategoryDto;
+import ru.damrin.app.model.category.CategoryRequest;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,15 +37,23 @@ public class CategoryService {
     repository.deleteById(id);
   }
 
-  public void changeCategory(CategoryDto categoryDto) {
-    var category = repository.findById(categoryDto.id())
+  public void changeCategory(CategoryRequest request) {
+    var categoryDto = request.categoryDto();
+    var category = repository.findById(request.categoryDto().id())
         .orElseThrow(() -> new WarehouseAppException("Category not found"));
     var categoryName = category.getName();
+
     log.info("Started change category process from {} to name: {}", categoryName, categoryDto.name());
+
     mapper.toEntity(categoryDto);
     category.setName(categoryName);
     category.setMarkupPercentage(categoryDto.markupPercentage());
-    repository.save(category);
+
+    if (request.needRecalculation()) {
+      repository.saveAndFlush(category);
+    } else {
+      repository.save(category);
+    }
     log.info("Category name {} was saved", categoryName);
   }
 }
