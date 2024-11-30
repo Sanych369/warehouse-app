@@ -2,6 +2,8 @@ package ru.damrin.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,9 +19,10 @@ import ru.damrin.app.model.category.CategoryRequest;
 import ru.damrin.app.service.CategoryService;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import static java.util.Objects.isNull;
+import static org.springframework.data.domain.Sort.Order.asc;
+import static org.springframework.data.domain.Sort.Order.desc;
 
 @Controller
 @RequestMapping("/category")
@@ -29,8 +32,25 @@ public class CategoryController {
   private final CategoryService categoryService;
 
   @GetMapping("/list")
-  public ResponseEntity<List<CategoryDto>> getAllCategories() {
-    return ResponseEntity.ok(categoryService.getAllCategories());
+  public ResponseEntity<Page<CategoryDto>> getCategories(
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size,
+      @RequestParam(value = "name", required = false) String name,
+      @RequestParam(value = "markupPercentage", required = false) BigDecimal markupPercentage,
+      @RequestParam(value = "sort", required = false) String sort) {
+
+    Sort sortOrder;
+
+    switch (sort) {
+      case "name_desc" -> sortOrder = Sort.by(desc("name"));
+      case "markup_asc" -> sortOrder = Sort.by(asc("markupPercentage"));
+      case "markup_desc" -> sortOrder = Sort.by(desc("markupPercentage"));
+      default -> sortOrder = Sort.by(asc("name"));
+    }
+
+    Page<CategoryDto> categories = categoryService.getAllCategories(name, markupPercentage, page, size, sortOrder);
+
+    return ResponseEntity.ok(categories);
   }
 
   @PostMapping("/add")
@@ -40,8 +60,9 @@ public class CategoryController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
+
   @DeleteMapping("/delete")
-  public ResponseEntity<Void> deleteCategoryById(@RequestParam Long id) {
+  public ResponseEntity<String> deleteCategoryById(@RequestParam Long id) {
     categoryService.deleteCategoryById(id);
     return ResponseEntity.ok().build();
   }

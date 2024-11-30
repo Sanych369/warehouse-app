@@ -1,5 +1,6 @@
 package ru.damrin.app.db.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,4 +33,7 @@ public class CompanyEntity {
   private String address;
   private String phone;
   private String email;
+
+  @Column(name = "is_active")
+  private boolean active;
 }

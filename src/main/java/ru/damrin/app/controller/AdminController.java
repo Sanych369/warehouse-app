@@ -3,7 +3,8 @@ package ru.damrin.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @RequestMapping("/admin")
@@ -20,14 +21,29 @@ public class AdminController {
         // Получаем список пользователей и передаем в модель
         return "users";  // Переход к странице списка пользователей
     }
+//    @GetMapping("/goods")
+//    public String showGoodsPage(Model model) {
+//        // Получаем список пользователей и передаем в модель
+//        return "goods";  // Переход к странице списка пользователей
+//    }
+
     @GetMapping("/goods")
     public String showGoodsPage(Model model) {
         // Получаем список пользователей и передаем в модель
         return "goods";  // Переход к странице списка пользователей
     }
 
+    @GetMapping("/category")
+    public String showCategoryPage(Model model) {
+        // Получаем список пользователей и передаем в модель
+        return "category";  // Переход к странице списка пользователей
+    }
 
-
+    @GetMapping("/goodsM")
+    public String showCGoodsManagerPage(Model model) {
+        // Получаем список пользователей и передаем в модель
+        return "goodsManager";  // Переход к странице списка пользователей
+    }
 //
 //    // API метод для получения всех пользователей в формате JSON
 //    @GetMapping("/users/all")

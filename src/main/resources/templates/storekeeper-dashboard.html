@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель кладовщика</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1 class="logo">Панель кладовщика</h1>
+        <nav class="navbar">
+            <a href="/storekeeper">Главная</a>
+            <a href="/storekeeper/stock">Остатки</a>
+            <a href="/logout">Выйти</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="management">
+        <div class="management-title">
+            <h2>Операции с товарами</h2>
+            <p>Здесь вы можете управлять движением товаров и проверять остатки.</p>
+        </div>
+
+        <div class="management-actions">
+            <div class="button-container">
+                <button class="dashboard-item" onclick="loadStock()">Остатки</button>
+            </div>
+            <div class="button-container">
+                <button class="dashboard-item" onclick="showReceivingForm()">Оприходование</button>
+            </div>
+            <div class="button-container">
+                <button class="dashboard-item" onclick="showWriteOffForm()">Списание</button>
+            </div>
+            <div class="button-container">
+                <button class="dashboard-item" onclick="showInventoryForm()">Инвентаризация</button>
+            </div>
+        </div>
+
+        <!-- Остатки -->
+        <div class="stock-table-container" id="stockTableContainer" style="display:none; margin-top: 20px;">
+            <h3>Остатки товаров</h3>
+            <table id="stockTable">
+                <thead>
+                <tr>
+                    <th>Название товара</th>
+                    <th>Категория</th>
+                    <th>Количество</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button class="hide-table-btn" onclick="toggleStockTableVisibility()">Скрыть таблицу</button>
+        </div>
+
+        <!-- Оприходование -->
+        <div class="receiving-form" id="receivingForm" style="display:none;">
+            <h3>Оприходование товара</h3>
+            <form id="receivingFormElement">
+                <label for="receivingGoodName">Название товара:</label>
+                <input type="text" id="receivingGoodName" required>
+
+                <label for="receivingQuantity">Количество:</label>
+                <input type="number" id="receivingQuantity" required>
+
+                <button type="button" onclick="receiveGoods()">Оприходовать</button>
+                <button type="button" onclick="cancelReceiving()">Отмена</button>
+            </form>
+        </div>
+
+        <!-- Списание -->
+        <div class="write-off-form" id="writeOffForm" style="display:none;">
+            <h3>Списание товара</h3>
+            <form id="writeOffFormElement">
+                <label for="writeOffGoodName">Название товара:</label>
+                <input type="text" id="writeOffGoodName" required>
+
+                <label for="writeOffQuantity">Количество:</label>
+                <input type="number" id="writeOffQuantity" required>
+
+                <button type="button" onclick="writeOffGoods()">Списать</button>
+                <button type="button" onclick="cancelWriteOff()">Отмена</button>
+            </form>
+        </div>
+
+        <!-- Инвентаризация -->
+        <div class="inventory-form" id="inventoryForm" style="display:none;">
+            <h3>Инвентаризация</h3>
+            <form id="inventoryFormElement">
+                <label for="inventoryGoodName">Название товара:</label>
+                <input type="text" id="inventoryGoodName" required>
+
+                <label for="inventoryQuantity">Фактическое количество:</label>
+                <input type="number" id="inventoryQuantity" required>
+
+                <button type="button" onclick="inventoryCheck()">Провести</button>
+                <button type="button" onclick="cancelInventory()">Отмена</button>
+            </form>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Система управления складом</p>
+</footer>
+
+<script>
+    function loadStock() {
+        fetch('/storekeeper/stock')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#stockTable tbody');
+                tableBody.innerHTML = '';
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.category}</td>
+                        <td>${item.quantity}</td>
+                        <td><button onclick="viewItemDetails('${item.id}')">Подробнее</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById('stockTableContainer').style.display = 'block';
+            });
+    }
+
+    function toggleStockTableVisibility() {
+        const tableContainer = document.getElementById('stockTableContainer');
+        tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function showReceivingForm() {
+        document.getElementById('receivingForm').style.display = 'block';
+    }
+
+    function cancelReceiving() {
+        document.getElementById('receivingForm').style.display = 'none';
+    }
+
+    function receiveGoods() {
+        // Реализация для оприходования товара
+    }
+
+    function showWriteOffForm() {
+        document.getElementById('writeOffForm').style.display = 'block';
+    }
+
+    function cancelWriteOff() {
+        document.getElementById('writeOffForm').style.display = 'none';
+    }
+
+    function writeOffGoods() {
+        // Реализация для списания товара
+    }
+
+    function showInventoryForm() {
+        document.getElementById('inventoryForm').style.display = 'block';
+    }
+
+    function cancelInventory() {
+        document.getElementById('inventoryForm').style.display = 'none';
+    }
+
+    function inventoryCheck() {
+        // Реализация для проведения инвентаризации
+    }
+</script>
+
+</body>
+</html>
