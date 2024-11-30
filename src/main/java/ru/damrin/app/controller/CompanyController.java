@@ -5,7 +5,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +30,16 @@ public class CompanyController {
     return ResponseEntity.ok(companyService.getAllCompanies());
   }
 
+  @GetMapping("/list/active")
+  public ResponseEntity<List<CompanyDto>> getAllActiveCompanies() {
+    return ResponseEntity.ok(companyService.getAllActiveCompanies());
+  }
+
+  @GetMapping("/list/inactive")
+  public ResponseEntity<List<CompanyDto>> getAllInactiveCompanies() {
+    return ResponseEntity.ok(companyService.getAllInactiveCompanies());
+  }
+
   @PostMapping("/add")
   public ResponseEntity<Void> addCategory(@RequestBody CompanyDto companyDto) {
     checkCompanyDto(companyDto);
@@ -38,9 +47,9 @@ public class CompanyController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @DeleteMapping("/delete")
+  @PostMapping("/deactivate")
   public ResponseEntity<Void> deleteCategoryById(@RequestParam Long id) {
-    companyService.deleteCompanyById(id);
+    companyService.deactivateCompanyById(id);
     return ResponseEntity.ok().build();
   }
 

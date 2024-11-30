@@ -22,7 +22,7 @@ public class WarehouseService {
   private final OrdersRepository ordersRepository;
   private final ReportGeneratorService reportGeneratorService;
 
-  @Scheduled(fixedRate = 5000)
+//  @Scheduled(fixedRate = 5000)
   public void createFile() throws IOException {
     File file = new File("warehouse.xlsx");
     if (!file.exists()) {

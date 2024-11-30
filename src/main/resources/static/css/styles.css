@@ -356,21 +356,31 @@ h2.text-center {
     margin-top: 20px;
 }
 
-.add-good-form, .add-category-form {
+.add-good-form, .add-category-form, .edit-category-form, #confirmDeleteModal {
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    display: none;
-    max-width: 500px;
+    display: none; /* Скрыто по умолчанию */
+    max-width: 500px; /* Максимальная ширина */
+    width: 100%; /* Форма не будет выходить за пределы экрана */
+    min-width: 400px; /* Устанавливаем минимальную ширину формы */
+    height: auto; /* Высота будет зависеть от контента */
+    max-height: 80%; /* Максимальная высота формы */
+    overflow: auto; /* Прокрутка, если форма превышает максимальную высоту */
     margin: 0 auto;
+    position: fixed; /* Фиксируем форму относительно окна браузера */
+    top: 50%; /* Центрируем по вертикали */
+    left: 50%; /* Центрируем по горизонтали */
+    transform: translate(-50%, -50%); /* Центрируем форму относительно экрана */
+    z-index: 9999; /* Обеспечиваем, чтобы форма была поверх других элементов */
 }
 
-.add-good-form h3, .add-category-form h3 {
+.add-good-form h3, .add-category-form h3, .edit-category-form {
     font-size: 24px;
     margin-bottom: 10px;
 }
-#addGoodName, #addCategory, #addPrice, #addQuantity, #addCategoryName {
+#addGoodName, #addCategory, #addPrice, #addQuantity, #addCategoryName, #editCategoryName {
     font-size: 16px;
 }
 
@@ -447,4 +457,188 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 
 .profile-item span {
     font-weight: normal;
+}
+.goods-table-container {
+     margin-top: 20px;
+     text-align: center; /* Центрирование содержимого */
+ }
+
+#goodsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#goodsTable th,
+#goodsTable td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+#goodsTable th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.table-container {
+    margin-top: 20px;
+    text-align: center; /* Центрирование содержимого */
+}
+
+#table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#table th,
+#table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+#table th {
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Центрирование пагинации */
+.pagination {
+    display: flex;
+    justify-content: center; /* Центрирование кнопок пагинации */
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.pagination button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.pagination button:hover {
+    background-color: #0056b3;
+}
+
+.page-size-selector {
+    display: flex;
+    justify-content: center; /* Центрирование кнопок выбора размера страницы */
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.page-size-selector button {
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.page-size-selector button:hover {
+    background-color: #218838;
+}
+
+.hide-table-btn {
+    display: block;
+    margin-top: 20px;
+    padding: 8px 16px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.hide-table-btn:hover {
+    background-color: #c82333;
+}
+
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center; /* Выравнивание по центру вертикально */
+    gap: 10px; /* Отступ между чекбоксом и текстом */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+.checkbox-wrapper input {
+    margin: 0; /* Убираем отступы вокруг чекбокса */
+}
+
+#confirmDeleteModal .modal-content {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Стиль для кнопок в модальном окне */
+#confirmDeleteModal button {
+    width: 100%; /* Кнопки занимают всю ширину */
+    margin-top: 10px;
+}
+
+
+/* Стили для контейнера сортировки */
+.sort-container {
+    align-items: center;
+}
+
+/* Стили для кнопок поиска и сортировки */
+.sort-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+ .sort-container button:hover {
+    background-color: #0056b3;
+}
+
+
+/* Поля поиска внутри таблицы */
+#table thead input {
+    width: 100%;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.input-with-reset {
+    position: relative;
+    display: inline-block;
+}
+
+.reset-button {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #999;
+}
+
+.reset-button:hover {
+    color: #333;
 }

@@ -2,13 +2,21 @@ package ru.damrin.app.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
+import ru.damrin.app.db.entity.GoodEntity;
 import ru.damrin.app.db.repository.CategoryRepository;
+import ru.damrin.app.db.repository.GoodRepository;
 import ru.damrin.app.mapper.CategoryMapper;
 import ru.damrin.app.model.category.CategoryDto;
 import ru.damrin.app.model.category.CategoryRequest;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Slf4j
@@ -18,11 +26,21 @@ public class CategoryService {
 
   private final CategoryMapper mapper;
   private final CategoryRepository repository;
+  private final GoodRepository goodRepository;
 
-  public List<CategoryDto> getAllCategories() {
-    return repository.findAll().stream()
-        .map(mapper::toDto)
-        .toList();
+  public Page<CategoryDto> getAllCategories(String name, BigDecimal markupPercentage, int page, int size, Sort sort) {
+    Pageable pageable = PageRequest.of(page, size, sort != null ? sort : Sort.unsorted());
+
+    // Применяем фильтры и сортировку
+    if (name != null && markupPercentage != null) {
+      return repository.findByNameContainingAndMarkupPercentage(name, markupPercentage, pageable).map(mapper::toDto);
+    } else if (name != null) {
+      return repository.findByNameContaining(name, pageable).map(mapper::toDto);
+    } else if (markupPercentage != null) {
+      return repository.findByMarkupPercentage(markupPercentage, pageable).map(mapper::toDto);
+    } else {
+      return repository.findAll(pageable).map(mapper::toDto);
+    }
   }
 
   public void addCategory(CategoryDto categoryDto) {
@@ -30,6 +48,11 @@ public class CategoryService {
     var category = mapper.toEntity(categoryDto);
     var entity = repository.save(category);
     log.info("Added category: {} for id {}", category, entity.getId());
+  }
+
+  public boolean hasGoodsInCategory(Long categoryId) {
+    List<GoodEntity> goods = goodRepository.findAllByCategoryId(categoryId);
+    return goods.stream().anyMatch(good -> good.getBalance() > 0);
   }
 
   public void deleteCategoryById(Long id) {
@@ -43,17 +66,19 @@ public class CategoryService {
         .orElseThrow(() -> new WarehouseAppException("Category not found"));
     var categoryName = category.getName();
 
-    log.info("Started change category process from {} to name: {}", categoryName, categoryDto.name());
-
-    mapper.toEntity(categoryDto);
-    category.setName(categoryName);
-    category.setMarkupPercentage(categoryDto.markupPercentage());
-
-    if (request.needRecalculation()) {
-      repository.saveAndFlush(category);
-    } else {
-      repository.save(category);
+    if (request.needRecalculation() && categoryDto.markupPercentage().compareTo(category.getMarkupPercentage()) != 0) {
+      category.getGoods().forEach(good -> recalculate(good, categoryDto.markupPercentage()));
     }
-    log.info("Category name {} was changed", categoryName);
+
+    mapper.partialUpdate(categoryDto, category);
+    repository.save(category);
+    log.info("Category {} was changed", categoryName);
+  }
+
+  private void recalculate(GoodEntity good, BigDecimal newMarkupPercentage) {
+    good.setSalePrice(good.getPurchasePrice().add(
+        good.getPurchasePrice()
+            .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
+            .multiply(newMarkupPercentage)));
   }
 }

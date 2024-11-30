@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель менеджера</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1 class="logo">Панель менеджера</h1>
+        <nav class="navbar">
+            <a href="/manager">Главная</a>
+            <a href="/manager/orders">Заказы</a>
+            <a href="/manager/reports">Отчёты</a>
+            <a href="/logout">Выйти</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="management">
+        <div class="management-title">
+            <h2>Управление заказами и отчётами</h2>
+            <p>Здесь вы можете управлять заказами и просматривать отчёты по складским операциям.</p>
+        </div>
+
+        <div class="management-actions">
+            <div class="button-container">
+                <button class="dashboard-item" onclick="loadOrders()">Просмотреть заказы</button>
+            </div>
+            <div class="button-container">
+                <button class="dashboard-item" onclick="generateReport()">Создать отчёт</button>
+            </div>
+        </div>
+
+        <div class="orders-table-container" id="ordersTableContainer" style="display:none; margin-top: 20px;">
+            <table id="ordersTable">
+                <thead>
+                <tr>
+                    <th>Номер заказа</th>
+                    <th>Дата</th>
+                    <th>Клиент</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <button class="hide-table-btn" onclick="toggleOrdersTableVisibility()">Скрыть таблицу</button>
+        </div>
+    </div>
+
+    <div class="reports-container" id="reportsContainer" style="display:none; margin-top: 20px;">
+        <h3>Создание отчёта</h3>
+        <form id="reportForm">
+            <label for="reportType">Тип отчёта:</label>
+            <select id="reportType" required>
+                <option value="sales">Продажи</option>
+                <option value="inventory">Остатки</option>
+                <option value="performance">Эффективность</option>
+            </select>
+
+            <label for="reportStartDate">Дата начала:</label>
+            <input type="date" id="reportStartDate" required>
+
+            <label for="reportEndDate">Дата окончания:</label>
+            <input type="date" id="reportEndDate" required>
+
+            <button type="button" onclick="createReport()">Создать отчёт</button>
+            <button type="button" onclick="cancelReport()">Отмена</button>
+        </form>
+    </div>
+</main>
+
+<footer>
+    <p>&copy; 2024 Система управления складскими операциями</p>
+</footer>
+
+<script>
+    function loadOrders() {
+        fetch('/manager/orders/list')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#ordersTable tbody');
+                tableBody.innerHTML = '';
+
+                data.forEach(order => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                    <td>${order.id}</td>
+                    <td>${order.date}</td>
+                    <td>${order.client}</td>
+                    <td>${order.status}</td>
+                    <td>
+                        <a href="#" onclick="viewOrderById('${order.id}')">Просмотреть</a> |
+                        <a href="#" onclick="updateOrderStatus('${order.id}')">Обновить статус</a>
+                    </td>
+                `;
+
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById('ordersTableContainer').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Ошибка при загрузке заказов:', error);
+            });
+    }
+
+    function toggleOrdersTableVisibility() {
+        const tableContainer = document.getElementById('ordersTableContainer');
+        tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function generateReport() {
+        document.getElementById('reportsContainer').style.display = 'block';
+    }
+
+    function cancelReport() {
+        document.getElementById('reportsContainer').style.display = 'none';
+    }
+
+    function createReport() {
+        const reportType = document.getElementById('reportType').value;
+        const startDate = document.getElementById('reportStartDate').value;
+        const endDate = document.getElementById('reportEndDate').value;
+
+        const reportData = { reportType, startDate, endDate };
+
+        fetch('/manager/reports/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(reportData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Отчёт успешно создан.');
+                    cancelReport();
+                } else {
+                    alert('Ошибка при создании отчёта.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при создании отчёта:', error);
+            });
+    }
+</script>
+
+</body>
+</html>
