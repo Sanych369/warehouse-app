@@ -5,7 +5,7 @@ import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import ru.damrin.app.model.CompanyDto;
+import ru.damrin.app.model.company.CompanyDto;
 import ru.damrin.app.db.entity.CompanyEntity;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING,
@@ -16,5 +16,5 @@ public interface CompanyMapper {
 
   CompanyDto toDto(CompanyEntity companyEntity);
 
-  CompanyEntity partialUpdate(CompanyDto companyDto, @MappingTarget CompanyEntity companyEntity);
+  void partialUpdate(CompanyDto companyDto, @MappingTarget CompanyEntity companyEntity);
 }

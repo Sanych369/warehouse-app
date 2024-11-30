@@ -53,14 +53,14 @@ public class SecurityConfig {
         .csrf(AbstractHttpConfigurer::disable)
 //                .httpBasic(Customizer.withDefaults())
 
-        .authorizeHttpRequests(authorize ->
-                authorize
-                    .requestMatchers(PUBLIC_URLS).permitAll()
+//        .authorizeHttpRequests(authorize ->
+//                authorize
+////                    .requestMatchers(PUBLIC_URLS).permitAll()
 //                                .requestMatchers(MANAGER_URLS).hasAnyAuthority(Role.MANAGER, Role.ADMIN)
 //                                .requestMatchers(STOREKEEPER_URLS).hasAuthority(Role.STOREKEEPER)
 //                                .requestMatchers(ADMIN_URLS).hasAuthority(Role.ADMIN)
-                    .anyRequest().authenticated()
-        )
+//                    .anyRequest().authenticated()
+//        )
 //                .formLogin(withDefaults())
         .authenticationManager(authenticationManager());
     return http.build();
