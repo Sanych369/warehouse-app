@@ -22,7 +22,7 @@ import java.util.List;
 import static java.util.Objects.isNull;
 
 @Controller
-@RequestMapping("/categories")
+@RequestMapping("/category")
 @RequiredArgsConstructor
 public class CategoryController {
 

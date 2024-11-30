@@ -54,6 +54,6 @@ public class CategoryService {
     } else {
       repository.save(category);
     }
-    log.info("Category name {} was saved", categoryName);
+    log.info("Category name {} was changed", categoryName);
   }
 }

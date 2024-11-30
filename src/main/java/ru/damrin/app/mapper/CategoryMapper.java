@@ -1,7 +1,6 @@
 package ru.damrin.app.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -13,10 +12,9 @@ import ru.damrin.app.model.category.CategoryDto;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface CategoryMapper {
 
-  @Mapping(target = "id", ignore = true)
   CategoryEntity toEntity(CategoryDto categoryEntityDto);
 
   CategoryDto toDto(CategoryEntity categoryEntity);
 
-  CategoryEntity partialUpdate(CategoryDto categoryEntityDto, @MappingTarget CategoryEntity categoryEntity);
+  void partialUpdate(CategoryDto categoryEntityDto, @MappingTarget CategoryEntity categoryEntity);
 }
