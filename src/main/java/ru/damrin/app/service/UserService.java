@@ -7,8 +7,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.enums.Position;
-import ru.damrin.app.db.entity.WarehouseUserEntity;
-import ru.damrin.app.db.repository.WarehouseUserRepository;
+import ru.damrin.app.db.entity.UserEntity;
+import ru.damrin.app.db.repository.UserRepository;
 import ru.damrin.app.model.UserDto;
 
 import java.util.List;
@@ -17,11 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
-  private final WarehouseUserRepository userRepository;
+  private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
   public List<UserDto> getAllUsers() {
-    List<WarehouseUserEntity> users = userRepository.findAll();
+    List<UserEntity> users = userRepository.findAll();
     return users.stream()
         .map(user -> new UserDto(
             user.getId(),
@@ -35,13 +35,13 @@ public class UserService {
   }
 
   public void deleteUserByEmail(String email) {
-    WarehouseUserEntity user = userRepository.findByEmail(email)
+    UserEntity user = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
     userRepository.delete(user);
   }
 
   public void saveUser(UserDto userDto) {
-    WarehouseUserEntity newUser = WarehouseUserEntity.builder()
+    UserEntity newUser = UserEntity.builder()
         .name(userDto.name())
         .surname(userDto.surname())
         .email(userDto.email())
@@ -52,7 +52,7 @@ public class UserService {
   }
 
   public UserDto getUserByEmail(String email) {
-    WarehouseUserEntity userEntity = userRepository.findByEmail(email)
+    UserEntity userEntity = userRepository.findByEmail(email)
         .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
     return new UserDto(
@@ -67,7 +67,7 @@ public class UserService {
 
   public void updateUser(UserDto userDto) {
 
-    WarehouseUserEntity user = userRepository.findByEmail(userDto.email())
+    UserEntity user = userRepository.findByEmail(userDto.email())
         .orElseThrow(() -> new RuntimeException("User not found with email: " + userDto.email()));
     user.setName(userDto.name());
     user.setSurname(userDto.surname());

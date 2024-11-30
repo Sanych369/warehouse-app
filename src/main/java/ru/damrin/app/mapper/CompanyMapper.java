@@ -1,22 +1,20 @@
 package ru.damrin.app.mapper;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
-import ru.damrin.app.db.entity.CategoryEntity;
-import ru.damrin.app.model.CategoryDto;
+import ru.damrin.app.model.CompanyDto;
+import ru.damrin.app.db.entity.CompanyEntity;
 
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING,
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-public interface CategoryMapper {
+public interface CompanyMapper {
 
-  @Mapping(target = "id", ignore = true)
-  CategoryEntity toEntity(CategoryDto categoryEntityDto);
+  CompanyEntity toEntity(CompanyDto companyDto);
 
-  CategoryDto toDto(CategoryEntity categoryEntity);
+  CompanyDto toDto(CompanyEntity companyEntity);
 
-  CategoryEntity partialUpdate(CategoryDto categoryEntityDto, @MappingTarget CategoryEntity categoryEntity);
+  CompanyEntity partialUpdate(CompanyDto companyDto, @MappingTarget CompanyEntity companyEntity);
 }

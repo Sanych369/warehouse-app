@@ -28,7 +28,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "orders")
-public class Order {
+public class OrderEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,11 +36,11 @@ public class Order {
 
   @ManyToOne
   @JoinColumn(name = "user_id")
-  private WarehouseUserEntity user;
+  private UserEntity user;
 
   @OneToOne
   @JoinColumn(name = "company_id")
-  private Company company;
+  private CompanyEntity company;
 
   @CreatedDate
   @Column(name = "created_at")

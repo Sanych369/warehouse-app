@@ -18,7 +18,7 @@ public class PositionConverter implements AttributeConverter<Position, String> {
   @Override
   public Position convertToEntityAttribute(String dbData) {
     return Arrays.stream(Position.values())
-        .filter(x -> x.getPositionName().equals(dbData))
+        .filter(enumValue -> enumValue.getPositionName().equals(dbData))
         .findFirst()
         .orElse(null);
   }

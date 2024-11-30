@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.model.CategoryDto;
 import ru.damrin.app.service.CategoryService;
@@ -29,6 +28,7 @@ public class CategoryController {
     }
 
     @PostMapping("/add")
+
     public ResponseEntity<Void> addCategory(@RequestBody CategoryDto categoryDto) {
         checkCategoryDto(categoryDto);
         categoryService.addCategory(categoryDto);
@@ -41,6 +41,7 @@ public class CategoryController {
         return ResponseEntity.ok().build();
     }
 
+    // CATEGORY + BOOL
     @PostMapping("/change")
     public ResponseEntity<Void> changeCategory(@RequestBody CategoryDto categoryDto) {
         checkCategoryDto(categoryDto);

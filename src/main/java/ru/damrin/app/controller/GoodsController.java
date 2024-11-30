@@ -1,26 +1,27 @@
 package ru.damrin.app.controller;
-//
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.stereotype.Controller;
-//import org.springframework.web.bind.annotation.*;
-//import ru.damrin.app.model.GoodDto;
-//import ru.damrin.app.service.GoodService;
-//
-//import java.util.List;
-//
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import ru.damrin.app.model.GoodDto;
+import ru.damrin.app.service.GoodService;
+
+
+import java.util.List;
+
 //@Controller
 //@RequestMapping("/goods")
 //@RequiredArgsConstructor
 //public class GoodsController {
-//
+
 //    private final GoodService goodService;
 //
 //    @GetMapping("/list")
-//    public ResponseEntity<List<GoodDto>> getAllGoods() {
-//        List<GoodDto> goods = goodService.getAllGoods();
-//        return ResponseEntity.ok(goods);
+//    public ResponseEntity<List<GoodDto>> findAll() {
+////        List<GoodDto> goods = goodService.findAll();
+////        return ResponseEntity.ok(goods);
 //    }
 //
 //    @PostMapping("/add")

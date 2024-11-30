@@ -6,50 +6,52 @@ import ru.damrin.app.db.entity.GoodEntity;
 import ru.damrin.app.db.repository.GoodRepository;
 import ru.damrin.app.model.GoodDto;
 
-//@Service
-//@RequiredArgsConstructor
-//public class GoodService {
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class GoodService {
+
+//  private final GoodMapper mapper;
+//  private final GoodRepository repository;
+//  private final GoodRepository goodRepository;
 //
-//    private final GoodRepository goodRepository;
+//  //Пока так, но вероятно, нужна будет пагинация
+//  public List<GoodDto> findAll() {
+//    return mapper.toGoodDtoList(repository.findAll());
+//  }
 //
-//    public void addGood(GoodDto goodDto) {
+//  public void addGood(GoodDto goodDto) {
+//    var good = mapper.toEntity(goodDto);
+//    goodRepository.save(good);
+//  }
 //
-//        GoodEntity good = GoodEntity.builder()
-//                .name(goodDto.name())
-//                .category(goodDto.category())
-//                .price(goodDto.price)
-//                .quantity(goodDto.quantity())
-//                .build();
+//  public GoodDto getGoodById(Long id) {
+//    var good = goodRepository.findById(id)
+//        .orElseThrow(() -> new RuntimeException("Good not found"));
 //
-//        goodRepository.save(good);
-//    }
-//
-//    public GoodDto getGoodById(Long id) {
-//        GoodEntity good = goodRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Good not found"));
-//
-//        return new GoodDto(
-//                good.getId(),
-//                good.getName(),
-//                good.getPrice(),
-//                good.getCategory().getCategory(),
-//                good.getQuantity()
-//        );
-//    }
-//
-//
-//    public void updateGood(GoodDto goodDto) {
-//        GoodEntity good = goodRepository.findById(goodDto.id())
-//                .orElseThrow(() -> new RuntimeException("Good not found"));
-//
-//        good.setName(goodDto.name());
-//        good.setPrice(goodDto.price());
-//        good.setQuantity(goodDto.quantity());
-//        goodRepository.save(good);
-//    }
+//    return new GoodDto(
+//        good.getId(),
+//        good.getName(),
+//        good.getSalePrice(),
+////        good.getCategory().getName(),
+//        good.getBalance()
+//    );
+//  }
 //
 //
-//    public void deleteGoodById(Long id) {
-//        goodRepository.deleteById(id);
-//    }
-//}
+//  public void updateGood(GoodDto goodDto) {
+//    GoodEntity good = goodRepository.findById(goodDto.id())
+//        .orElseThrow(() -> new RuntimeException("Good not found"));
+//
+//    good.setName(goodDto.name());
+////    good.setPrice(goodDto.price());
+////    good.setQuantity(goodDto.quantity());
+//    goodRepository.save(good);
+//  }
+//
+//
+//  public void deleteGoodById(Long id) {
+//    goodRepository.deleteById(id);
+//  }
+}
