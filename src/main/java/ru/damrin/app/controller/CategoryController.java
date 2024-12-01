@@ -17,12 +17,11 @@ import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.model.category.CategoryDto;
 import ru.damrin.app.model.category.CategoryRequest;
 import ru.damrin.app.service.CategoryService;
+import ru.damrin.app.service.SortService;
 
 import java.math.BigDecimal;
 
 import static java.util.Objects.isNull;
-import static org.springframework.data.domain.Sort.Order.asc;
-import static org.springframework.data.domain.Sort.Order.desc;
 
 @Controller
 @RequestMapping("/category")
@@ -30,6 +29,7 @@ import static org.springframework.data.domain.Sort.Order.desc;
 public class CategoryController {
 
   private final CategoryService categoryService;
+  private final SortService sortService;
 
   @GetMapping("/list")
   public ResponseEntity<Page<CategoryDto>> getCategories(
@@ -39,14 +39,7 @@ public class CategoryController {
       @RequestParam(value = "markupPercentage", required = false) BigDecimal markupPercentage,
       @RequestParam(value = "sort", required = false) String sort) {
 
-    Sort sortOrder;
-
-    switch (sort) {
-      case "name_desc" -> sortOrder = Sort.by(desc("name"));
-      case "markup_asc" -> sortOrder = Sort.by(asc("markupPercentage"));
-      case "markup_desc" -> sortOrder = Sort.by(desc("markupPercentage"));
-      default -> sortOrder = Sort.by(asc("name"));
-    }
+    Sort sortOrder = sortService.getSortOrderForCategory(sort);
 
     Page<CategoryDto> categories = categoryService.getAllCategories(name, markupPercentage, page, size, sortOrder);
 
@@ -77,11 +70,11 @@ public class CategoryController {
 
   private void checkCategoryDto(CategoryDto categoryDto) {
     if (isNull(categoryDto) || StringUtils.isEmpty(categoryDto.name()) || isNull(categoryDto.markupPercentage())) {
-      throw new WarehouseAppException("Category name and percentage cannot be empty");
+      throw new WarehouseAppException("Наименование категории и процент наценки не могут быть пусты. Заполните данные");
     }
 
     if (categoryDto.markupPercentage().compareTo(BigDecimal.ZERO) < 0) {
-      throw new WarehouseAppException("Category markup percentage cannot be zero or negative");
+      throw new WarehouseAppException("Процент наценки не может быть ниже 0.");
     }
   }
 }

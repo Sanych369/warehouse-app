@@ -47,9 +47,9 @@ public class GoodEntity {
   private BigDecimal purchasePrice;
 
   @Column(name = "sale_price")
-  private BigDecimal salePrice;
+  private Long salePrice;
 
-  @Column(name = "balance")
+  @Column(name = "balance", insertable = false)
   private Long balance;
 
   @Override
@@ -79,6 +79,6 @@ public class GoodEntity {
     this.setSalePrice(purchasePrice.add(
             purchasePrice.divide(new BigDecimal(100), RoundingMode.HALF_UP)
                 .multiply(category.getMarkupPercentage()))
-        .setScale(0, RoundingMode.HALF_UP));
+        .setScale(0, RoundingMode.HALF_UP).longValue());
   }
 }

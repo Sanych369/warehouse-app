@@ -29,10 +29,11 @@ public class OrdersGoodsEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @OneToOne
-  @JoinColumn(name = "good_id")
-  private GoodEntity goodEntities;
+  @Column(name = "good_name")
+  private String goodName;
 
+  @Column(name = "sum")
+  private Long sum;
 
   @ManyToOne(fetch = FetchType.LAZY)
   private OrderEntity order;

@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.enums.Position;
+import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.entity.UserEntity;
 import ru.damrin.app.db.repository.UserRepository;
 import ru.damrin.app.model.UserDto;
@@ -36,7 +37,7 @@ public class UserService {
 
   public void deleteUserByEmail(String email) {
     UserEntity user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        .orElseThrow(() -> new WarehouseAppException(String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
     userRepository.delete(user);
   }
 
@@ -53,7 +54,7 @@ public class UserService {
 
   public UserDto getUserByEmail(String email) {
     UserEntity userEntity = userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        .orElseThrow(() -> new WarehouseAppException(String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
 
     return new UserDto(
         userEntity.getId(),
@@ -68,7 +69,8 @@ public class UserService {
   public void updateUser(UserDto userDto) {
 
     UserEntity user = userRepository.findByEmail(userDto.email())
-        .orElseThrow(() -> new RuntimeException("User not found with email: " + userDto.email()));
+        .orElseThrow(() -> new WarehouseAppException(
+            String.format("Пользователь с email %s не найден. Проверьте правильность ввода", userDto.email())));
     user.setName(userDto.name());
     user.setSurname(userDto.surname());
     user.setPosition((Position.valueOf(userDto.position())));

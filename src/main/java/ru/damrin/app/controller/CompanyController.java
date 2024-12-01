@@ -63,7 +63,7 @@ public class CompanyController {
   private void checkCompanyDto(CompanyDto companyDto) {
     if (isNull(companyDto) || StringUtils.isEmpty(companyDto.name())
         || StringUtils.isEmpty(companyDto.address())) {
-      throw new WarehouseAppException("Company name and address cannot be empty!");
+      throw new WarehouseAppException("Наименование компании и адрес не могут быть пустыми. Заполните данные");
     }
   }
 }
