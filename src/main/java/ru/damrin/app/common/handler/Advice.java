@@ -16,8 +16,7 @@ public class Advice {
     return new ResponseEntity<>(
         Response.builder()
             .message(e.getMessage())
-            .description(e.getDescription())
-            .build(), HttpStatus.INTERNAL_SERVER_ERROR);
+            .build(), HttpStatus.CONFLICT);
   }
 
   @ExceptionHandler(ValidationException.class)

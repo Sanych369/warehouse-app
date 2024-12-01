@@ -47,7 +47,8 @@ public class CompanyService {
   //Не удаляем, делаем неактивной, иначе упадёт история заказов
   public void deactivateCompanyById(Long id) {
     log.info("Deactivate company by id: {}", id);
-    var company = repository.findById(id).orElseThrow(() -> new WarehouseAppException("Company not found"));
+    var company = repository.findById(id).orElseThrow(
+        () -> new WarehouseAppException("Компания не найдена"));
     company.setActive(false);
     repository.save(company);
   }
@@ -55,7 +56,7 @@ public class CompanyService {
   // Тут нужна пропертя active bool
   public void changeCompany(CompanyDto companyDto) {
     var company = repository.findById(companyDto.id())
-        .orElseThrow(() -> new WarehouseAppException("Company not found"));
+        .orElseThrow(() -> new WarehouseAppException("Компания не найдена"));
     var companyName = company.getName();
 
     log.info("Started change company with name {} process", companyName);

@@ -19,7 +19,6 @@ import ru.damrin.app.db.entity.OrderEntity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -97,18 +96,16 @@ public class ReportGeneratorService {
 
       cell = row.createCell(cellNum++);
       cell.setCellValue(order.getOrdersGoods().stream()
-          .flatMap(x -> Stream.of(x.getGoodEntities().getName() + " " + x.getQuantity()))
+          .flatMap(x -> Stream.of(x.getGoodName() + " " + x.getQuantity()))
           .collect(Collectors.joining("\n")));
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum);
-      cell.setCellValue(order.getOrdersGoods().stream()
-          .map(x -> x.getGoodEntities().getSalePrice().multiply(BigDecimal.valueOf(x.getQuantity())))
-          .reduce(BigDecimal.ZERO, BigDecimal::add).toString());
+      cell.setCellValue(order.getTotalAmount());
       cell.setCellStyle(style);
 
       row.setHeightInPoints(order.getOrdersGoods().size() * sheet.getDefaultRowHeightInPoints());
-      row.setRowStyle(style);
+      row.setRowStyle(style); //TODO: проверить стайлы
     }
 
     sheet.autoSizeColumn(0);
@@ -125,7 +122,7 @@ public class ReportGeneratorService {
       return outputStream.toByteArray();
     } catch (IOException e) {
       log.error("Error while generating report. Cause: {}", e.getMessage());
-      throw new WarehouseAppException(e.getMessage());
+      throw new WarehouseAppException(String.format("Ошибка в генерации отчёта %s", sheetName));
     }
   }
 }

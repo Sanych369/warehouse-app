@@ -17,7 +17,6 @@ import ru.damrin.app.model.category.CategoryRequest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -50,11 +49,6 @@ public class CategoryService {
     log.info("Added category: {} for id {}", category, entity.getId());
   }
 
-  public boolean hasGoodsInCategory(Long categoryId) {
-    List<GoodEntity> goods = goodRepository.findAllByCategoryId(categoryId);
-    return goods.stream().anyMatch(good -> good.getBalance() > 0);
-  }
-
   public void deleteCategoryById(Long id) {
     log.info("Delete category by id: {}", id);
     repository.deleteById(id);
@@ -63,7 +57,9 @@ public class CategoryService {
   public void changeCategory(CategoryRequest request) {
     var categoryDto = request.categoryDto();
     var category = repository.findById(request.categoryDto().id())
-        .orElseThrow(() -> new WarehouseAppException("Category not found"));
+        .orElseThrow(() -> new WarehouseAppException(
+            String.format("Категория товара: %s не найдена. Проверьте правильность и наличие данной категории", request.categoryDto().name())));
+
     var categoryName = category.getName();
 
     if (request.needRecalculation() && categoryDto.markupPercentage().compareTo(category.getMarkupPercentage()) != 0) {
@@ -79,6 +75,6 @@ public class CategoryService {
     good.setSalePrice(good.getPurchasePrice().add(
         good.getPurchasePrice()
             .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP)
-            .multiply(newMarkupPercentage)));
+            .multiply(newMarkupPercentage)).longValue());
   }
 }

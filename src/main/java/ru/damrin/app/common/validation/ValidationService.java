@@ -6,6 +6,7 @@ import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.damrin.app.common.exception.WarehouseAppException;
 
 import java.util.stream.Collectors;
 
@@ -24,9 +25,9 @@ public class ValidationService<T> {
     if (!violations.isEmpty()) {
       var message = violations.stream()
           .map(x -> x.getPropertyPath() + x.getMessage())
-          .collect(Collectors.joining(", "));
-      log.error("Validation errors: {}", message);
-      throw new ValidationException(message);
+          .collect(Collectors.joining(", ", "Validation Error: ", ""));
+      log.error(message);
+      throw new WarehouseAppException(message);
     }
     return object;
   }

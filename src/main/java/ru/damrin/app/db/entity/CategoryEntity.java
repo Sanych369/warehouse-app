@@ -52,7 +52,7 @@ public class CategoryEntity {
     if (goods.stream()
         .map(GoodEntity::getBalance)
         .anyMatch(balance -> balance > 0)) {
-      throw new WarehouseAppException("Невозможно удалить категорию. Имеются товары на балансе");
+      throw new WarehouseAppException(String.format("Невозможно удалить категорию %s. Имеются товары на балансе", name));
     }
   }
 }
