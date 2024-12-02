@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.proxy.HibernateProxy;
+import ru.damrin.app.common.exception.WarehouseAppException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,8 +40,8 @@ public class GoodEntity {
   @Column(name = "name")
   private String name;
 
-  @Enumerated(EnumType.STRING)
   @ManyToOne
+  @Enumerated(EnumType.STRING)
   @JoinColumn(name = "category_id")
   private CategoryEntity category;
 
@@ -80,5 +82,14 @@ public class GoodEntity {
             purchasePrice.divide(new BigDecimal(100), RoundingMode.HALF_UP)
                 .multiply(category.getMarkupPercentage()))
         .setScale(0, RoundingMode.HALF_UP).longValue());
+  }
+
+  @PreRemove
+  private void preRemove() {
+    if (this.balance > 0) {
+      throw new WarehouseAppException(String.format(
+          "Невозможно удалить товар: %s. Текущий остаток: %d", this.name, this.balance)
+      );
+    }
   }
 }

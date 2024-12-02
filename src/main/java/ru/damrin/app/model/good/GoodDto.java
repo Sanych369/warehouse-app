@@ -7,5 +7,5 @@ import java.math.BigDecimal;
 /**
  * DTO for {@link ru.damrin.app.db.entity.GoodEntity}
  */
-public record GoodDto(String name, CategoryDto category, BigDecimal purchasePrice, BigDecimal salePrice, Long balance) {
+public record GoodDto(Long id, String name, CategoryDto category, BigDecimal purchasePrice, Long salePrice, Long balance) {
 }

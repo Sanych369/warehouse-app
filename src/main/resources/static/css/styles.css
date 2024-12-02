@@ -178,24 +178,24 @@ main {
 }
 
 
-.user-table-container {
+.table-container {
     margin-top: 20px;
 }
 
-#userTable {
+#table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
 
-#userTable th,
-#userTable td {
+#table th,
+#table td {
     padding: 10px;
     border: 1px solid #ddd;
     text-align: center;
 }
 
-#userTable th {
+#table th {
     background-color: #f4f4f4;
     color: #333;
 }
@@ -356,7 +356,7 @@ h2.text-center {
     margin-top: 20px;
 }
 
-.add-good-form, .add-category-form, .edit-category-form, #confirmDeleteModal {
+.add-good-form, .add-category-form, .edit-category-form, #confirmDeleteModal, .edit-good-form, .add-user-form, .edit-user-form, .edit-form, .add-form{
     background-color: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -376,11 +376,11 @@ h2.text-center {
     z-index: 9999; /* Обеспечиваем, чтобы форма была поверх других элементов */
 }
 
-.add-good-form h3, .add-category-form h3, .edit-category-form {
+.add-good-form h3, .add-category-form h3, .edit-category-form, .edit-good-form {
     font-size: 24px;
     margin-bottom: 10px;
 }
-#addGoodName, #addCategory, #addPrice, #addQuantity, #addCategoryName, #editCategoryName {
+#addGoodName, #addCategory, #addPrice, #addQuantity, #addCategoryName, #editCategoryName, #editGoodName{
     font-size: 16px;
 }
 
@@ -616,7 +616,7 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 #table thead input {
     width: 100%;
     padding: 5px;
-    font-size: 14px;
+    font-size: 18px;
     border: 1px solid #ddd;
     border-radius: 4px;
     box-sizing: border-box;
@@ -641,4 +641,14 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 
 .reset-button:hover {
     color: #333;
+}
+
+.active {
+    color: green;
+    font-weight: bold;
+}
+
+.inactive {
+    color: red;
+    font-weight: bold;
 }

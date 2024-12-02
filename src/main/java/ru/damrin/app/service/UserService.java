@@ -1,15 +1,19 @@
 package ru.damrin.app.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.damrin.app.common.enums.Position;
 import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.entity.UserEntity;
 import ru.damrin.app.db.repository.UserRepository;
+import ru.damrin.app.mapper.UserMapper;
 import ru.damrin.app.model.UserDto;
 
 import java.util.List;
@@ -18,21 +22,19 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
 
+  private final UserMapper userMapper;
+  private final SortService sortService;
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  public Page<UserDto> getUsersPage(int page, int size, String name, String surname, String position, String email, String sort) {
+    Sort sortOrder = sortService.getSortOrderForUsers(sort);
+    Pageable pageable = PageRequest.of(page, size, sortOrder);
+    return userRepository.findByFilters(name, surname, position, email, pageable).map(userMapper::toDto);
+  }
+
   public List<UserDto> getAllUsers() {
-    List<UserEntity> users = userRepository.findAll();
-    return users.stream()
-        .map(user -> new UserDto(
-            user.getId(),
-            user.getName(),
-            user.getSurname(),
-            user.getPosition().getPositionName(),
-            user.getEmail(),
-            user.getPassword()
-        ))
-        .toList();
+    return userRepository.findAll().stream().map(userMapper::toDto).toList();
   }
 
   public void deleteUserByEmail(String email) {
@@ -42,47 +44,33 @@ public class UserService {
   }
 
   public void saveUser(UserDto userDto) {
-    UserEntity newUser = UserEntity.builder()
-        .name(userDto.name())
-        .surname(userDto.surname())
-        .email(userDto.email())
-        .password(passwordEncoder.encode(userDto.password()))
-        .position(Position.valueOf(userDto.position()))
-        .build();
-    userRepository.save(newUser);
+    UserEntity userEntity = userMapper.toEntity(userDto);
+    userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+    userRepository.save(userEntity);
   }
 
   public UserDto getUserByEmail(String email) {
     UserEntity userEntity = userRepository.findByEmail(email)
         .orElseThrow(() -> new WarehouseAppException(String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
 
-    return new UserDto(
-        userEntity.getId(),
-        userEntity.getName(),
-        userEntity.getSurname(),
-        userEntity.getPosition().getPositionName(),
-        userEntity.getEmail(),
-        userEntity.getPassword()
-    );
+    return userMapper.toDto(userEntity);
   }
 
   public void updateUser(UserDto userDto) {
-
     UserEntity user = userRepository.findByEmail(userDto.email())
         .orElseThrow(() -> new WarehouseAppException(
             String.format("Пользователь с email %s не найден. Проверьте правильность ввода", userDto.email())));
-    user.setName(userDto.name());
-    user.setSurname(userDto.surname());
-    user.setPosition((Position.valueOf(userDto.position())));
+    UserEntity updatedUser = userMapper.partialUpdate(userDto, user);
+
     if (userDto.password() != null && !userDto.password().isEmpty()) {
       user.setPassword(passwordEncoder.encode(userDto.password()));
     }
+    userRepository.save(updatedUser);
   }
 
   public UserDto getProfile() {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
     String email = userDetails.getUsername();
     return getUserByEmail(email);
   }

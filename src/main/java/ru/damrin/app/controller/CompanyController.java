@@ -2,6 +2,7 @@ package ru.damrin.app.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,7 +20,7 @@ import java.util.List;
 import static java.util.Objects.isNull;
 
 @Controller
-@RequestMapping("/company")
+@RequestMapping("/companies")
 @RequiredArgsConstructor
 public class CompanyController {
 
@@ -38,6 +39,21 @@ public class CompanyController {
   @GetMapping("/list/inactive")
   public ResponseEntity<List<CompanyDto>> getAllInactiveCompanies() {
     return ResponseEntity.ok(companyService.getAllInactiveCompanies());
+  }
+
+  @GetMapping("/page")
+  public ResponseEntity<Page<CompanyDto>> getCompaniesPage(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String name,
+      @RequestParam(required = false) String address,
+      @RequestParam(required = false) String phone,
+      @RequestParam(required = false) String email,
+      @RequestParam(required = false) Boolean isActive,
+      @RequestParam(required = false) String sort) {
+
+    Page<CompanyDto> companies = companyService.getCompaniesPage(name, address, phone, email, isActive, sort, page, size);
+    return ResponseEntity.ok(companies);
   }
 
   @PostMapping("/add")

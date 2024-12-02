@@ -20,11 +20,12 @@ import ru.damrin.app.service.CategoryService;
 import ru.damrin.app.service.SortService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static java.util.Objects.isNull;
 
 @Controller
-@RequestMapping("/category")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
@@ -32,17 +33,20 @@ public class CategoryController {
   private final SortService sortService;
 
   @GetMapping("/list")
-  public ResponseEntity<Page<CategoryDto>> getCategories(
+  public ResponseEntity<List<CategoryDto>> getAllCategories() {
+    List<CategoryDto> categories = categoryService.getAllCategories();
+    return ResponseEntity.ok(categories);
+  }
+
+  @GetMapping("/page")
+  public ResponseEntity<Page<CategoryDto>> getCategoriesPage(
       @RequestParam(value = "page", defaultValue = "0") int page,
       @RequestParam(value = "size", defaultValue = "10") int size,
       @RequestParam(value = "name", required = false) String name,
       @RequestParam(value = "markupPercentage", required = false) BigDecimal markupPercentage,
       @RequestParam(value = "sort", required = false) String sort) {
 
-    Sort sortOrder = sortService.getSortOrderForCategory(sort);
-
-    Page<CategoryDto> categories = categoryService.getAllCategories(name, markupPercentage, page, size, sortOrder);
-
+    Page<CategoryDto> categories = categoryService.getPageCategories(name, markupPercentage, page, size, sort);
     return ResponseEntity.ok(categories);
   }
 
@@ -52,7 +56,6 @@ public class CategoryController {
     categoryService.addCategory(categoryDto);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
-
 
   @DeleteMapping("/delete")
   public ResponseEntity<String> deleteCategoryById(@RequestParam Long id) {

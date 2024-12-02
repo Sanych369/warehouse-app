@@ -1,6 +1,7 @@
 package ru.damrin.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,6 +18,20 @@ public class UserController {
 
     private final UserService userService;
 
+    @GetMapping("/page")
+    public ResponseEntity<Page<UserDto>> getUsersPage(
+        @RequestParam(value = "page", defaultValue = "0") int page,
+        @RequestParam(value = "size", defaultValue = "20") int size,
+        @RequestParam(value = "name", required = false) String name,
+        @RequestParam(value = "surname", required = false) String surname,
+        @RequestParam(value = "position", required = false) String position,
+        @RequestParam(value = "email", required = false) String email,
+        @RequestParam(value = "sort", required = false) String sort
+    ) {
+        Page<UserDto> usersPage = userService.getUsersPage(page, size, name, surname, position, email, sort);
+        return ResponseEntity.ok(usersPage);
+    }
+
     @PostMapping("/add")
     public String addUser(@RequestBody UserDto userDto) {
         userService.saveUser(userDto);
@@ -28,7 +43,7 @@ public class UserController {
         try {
             UserDto userDto = userService.getUserByEmail(email);
             return ResponseEntity.ok(userDto);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
@@ -38,7 +53,7 @@ public class UserController {
         try {
             userService.updateUser(userDto);
             return ResponseEntity.ok("Пользователь обновлен");
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Пользователь не найден");
         }
     }
