@@ -37,9 +37,60 @@
             </div>
         </div>
 
-        <div class="user-table-container" id="userTableContainer" style="display:none; margin-top: 20px;">
-            <table id="userTable">
+        <div class="table-container" id="userTableContainer" style="display:none; margin-top: 20px;">
+            <table id="table">
                 <thead>
+                <tr>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="nameSearch" placeholder="Поиск по имени"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('nameSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+
+                        <div class="input-with-reset">
+                            <input type="text" id="surnameSearch" placeholder="Поиск по фамилии"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('surnameSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="positionSearch" placeholder="Поиск по должности"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('positionSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="emailSearch" placeholder="Поиск по Email" oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('emailSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+
+                    <th>
+                        <div class="sort-container">
+                            <label for="usersSort">Сортировать по:</label>
+                            <select id="usersSort" onchange="applyFilters()">
+                                <option value="">Выберите</option>
+                                <option value="name_asc">Имя (А-Я)</option>
+                                <option value="name_desc">Имя (Я-А)</option>
+                                <option value="surname_asc">Фамилия (А-Я)</option>
+                                <option value="surname_desc">Фамилия (Я-А)</option>
+                                <option value="position_asc"> Должность (А-Я)</option>
+                                <option value="position_desc">Должность (Я-А)</option>
+                                <option value="email_asc"> Email (по возрастанию)</option>
+                                <option value="email_desc">Email (по убыванию)</option>
+                            </select>
+                        </div>
+                    </th>
+                </tr>
                 <tr>
                     <th>Имя</th>
                     <th>Фамилия</th>
@@ -51,6 +102,17 @@
                 <tbody>
                 </tbody>
             </table>
+            <div class="pagination" id="categoriesPagination">
+                <button onclick="prevPage()">Назад</button>
+                <span id="goodsPageInfo">Страница 1</span>
+                <button onclick="nextPage()">Вперед</button>
+            </div>
+
+            <div class="page-size-selector">
+                <button onclick="setAmountPerPage(10)">10</button>
+                <button onclick="setAmountPerPage(30)">30</button>
+                <button onclick="setAmountPerPage(90)">90</button>
+            </div>
             <button class="hide-table-btn" onclick="toggleTableVisibility()">Скрыть таблицу</button>
         </div>
     </div>
@@ -109,43 +171,83 @@
         </form>
     </div>
 
-    <button onclick="window.location.href='/admin'" class="back-to-admin-btn">Вернуться на панель администратора</button>
+    <button onclick="window.location.href='/admin'" class="back-to-admin-btn">Вернуться на панель администратора
+    </button>
 </main>
 
 <footer>
     <p>&copy; 2024 Система управления складом</p>
 </footer>
+</body>
+</html>
 
 <script>
-    function loadUsers() {
-        fetch('/admin/users/list')
+    let currentPage = 0;
+    let amountPerPage = 10;
+    let totalPages = 1;
+
+    function applyFilters() {
+        const nameSearch = document.getElementById('nameSearch').value;
+        const surnameSearch = document.getElementById('surnameSearch').value;
+        const positionSearch = document.getElementById('positionSearch').value;
+        const emailSearch = document.getElementById('emailSearch').value;
+        const sortOption = document.getElementById('usersSort').value;
+
+        loadUsers(nameSearch, surnameSearch, positionSearch, emailSearch, sortOption);
+    }
+
+    function loadUsers(name = '', surname = '', position = '', email = '', sort = '') {
+        const url = `/admin/users/page?page=${currentPage}&size=${amountPerPage}&name=${encodeURIComponent(name)}&surname=${encodeURIComponent(surname)}&position=${encodeURIComponent(position)}&email=${encodeURIComponent(email)}&sort=${encodeURIComponent(sort)}`;
+        fetch(url)
             .then(response => response.json())
             .then(data => {
-                const tableBody = document.querySelector('#userTable tbody');
+                const tableBody = document.querySelector('#table tbody');
                 tableBody.innerHTML = '';
 
-                data.forEach(user => {
+                data.content.forEach(user => {
                     const row = document.createElement('tr');
-
                     row.innerHTML = `
-                    <td>${user.name}</td>
-                    <td>${user.surname}</td>
-                    <td>${user.position}</td>
-                    <td>${user.email}</td>
-                    <td>
-                        <a href="#" onclick="editUserByEmail('${user.email}')">Редактировать</a> |
-                        <a href="#" onclick="deleteUserByEmail('${user.email}')">Удалить</a>
-                    </td>
-                `;
-
+                            <td>${user.name}</td>
+                            <td>${user.surname}</td>
+                            <td>${user.position}</td>
+                             <td>${user.email}</td>
+                             <td>
+                                  <a href="#" onclick="editUserByEmail('${user.email}')">Редактировать</a> |
+                                  <a href="#" onclick="deleteUserByEmail('${user.email}')">Удалить</a>
+                            </td>
+                            `;
                     tableBody.appendChild(row);
                 });
+
+                document.getElementById('goodsPageInfo').textContent = `Страница ${data.number + 1} из ${data.totalPages}`;
+                currentPage = data.number;
+                totalPages = data.totalPages;
 
                 document.getElementById('userTableContainer').style.display = 'block';
             })
             .catch(error => {
                 console.error('Ошибка при получении пользователей:', error);
             });
+    }
+
+    function prevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            loadUsers();
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            loadUsers();
+        }
+    }
+
+    function setAmountPerPage(size) {
+        amountPerPage = size;
+        currentPage = 0;
+        loadUsers();
     }
 
     function toggleTableVisibility() {
@@ -216,10 +318,18 @@
         const updatedUser = {
             name: document.getElementById('editName').value,
             surname: document.getElementById('editSurname').value,
-            position: document.getElementById('editPosition').value,
-            email: document.getElementById('editEmail').value,
-            password: document.getElementById('addPassword').value
+            email: document.getElementById('editEmail').value
         };
+
+        const position = document.getElementById('editPosition').value;
+        const password = document.getElementById('editPassword').value;
+
+        if (position) {
+            updatedUser.position = position;
+        }
+        if (password) {
+            updatedUser.password = password;
+        }
 
         fetch('/admin/users/edit', {
             method: 'PUT',
@@ -265,5 +375,4 @@
         }
     }
 </script>
-</body>
-</html>
+

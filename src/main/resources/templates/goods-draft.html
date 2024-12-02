@@ -34,16 +34,11 @@
             <div class="button-container">
                 <button class="dashboard-item" onclick="showAddGoodForm()">Добавить товар</button>
             </div>
-            <div class="button-container">
-                <button class="dashboard-item" onclick="loadCategories()">Получить список категорий</button>
-            </div>
-            <div class="button-container">
-                <button class="dashboard-item" onclick="showAddCategoryForm()">Добавить категорию</button>
-            </div>
+
         </div>
 
-        <div class="goods-table-container" id="goodsTableContainer" style="display:none; margin-top: 20px;">
-            <table id="goodsTable">
+        <div class="table-container" id="goodsTableContainer" style="display:none; margin-top: 20px;">
+            <table id="table">
                 <thead>
                 <tr>
                     <th>Название товара</th>
@@ -59,20 +54,7 @@
             <button class="hide-table-btn" onclick="toggleGoodsTableVisibility()">Скрыть таблицу</button>
         </div>
 
-        <div class="categories-table-container" id="categoriesTableContainer" style="display:none; margin-top: 20px;">
-            <table id="table">
-                <thead>
-                <tr>
-                    <th>Название категории</th>
-                    <th>Действия</th>
-                </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-            <button class="hide-table-btn" onclick="toggleCategoriesTableVisibility()">Скрыть таблицу</button>
-        </div>
-    </div>
+
 
     <!-- Форма для добавления товаров -->
     <div class="add-good-form" id="addGoodForm" style="display:none;">
@@ -175,10 +157,6 @@
             });
     }
 
-    function toggleCategoriesTableVisibility() {
-        const tableContainer = document.getElementById('categoriesTableContainer');
-        tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
-    }
 
     function showAddGoodForm() {
         fetch('/category/list')

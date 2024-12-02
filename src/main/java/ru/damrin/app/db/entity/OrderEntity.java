@@ -53,7 +53,7 @@ public class OrderEntity {
   private Long totalAmount = 0L;
 
   @CreatedDate
-  @Column(name = "created_at")
+  @Column(name = "created_at", insertable = false, updatable = false)
   private LocalDate createdAt;
 
   @Builder.Default
@@ -63,8 +63,10 @@ public class OrderEntity {
 
   public void addOrdersGoods(OrdersGoodsEntity ordersGoods) {
     ordersGoods.setOrder(this);
-    totalAmount += ordersGoods.getSum();
     this.ordersGoods.add(ordersGoods);
+    totalAmount = this.ordersGoods.stream()
+        .map(OrdersGoodsEntity::getSum)
+        .reduce(0L, Long::sum);
   }
 
   public void removeOrdersGoodsByName(String goodName) {
@@ -74,7 +76,7 @@ public class OrderEntity {
         .orElseThrow(() -> new WarehouseAppException(
             String.format("Позиция %s не найдена в заказе. Проверьте наличие позиции", goodName)));
       order.setOrder(null);
-      totalAmount -= order.getSum();
       this.ordersGoods.remove(order);
+      totalAmount -= order.getSum();
   }
 }

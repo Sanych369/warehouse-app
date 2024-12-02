@@ -33,68 +33,15 @@ public class AdminController {
         return "goods";  // Переход к странице списка пользователей
     }
 
-    @GetMapping("/category")
+    @GetMapping("/companies")
+    public String showCompaniesPage(Model model) {
+        // Получаем список пользователей и передаем в модель
+        return "companies";  // Переход к странице списка пользователей
+    }
+
+    @GetMapping("/categories")
     public String showCategoryPage(Model model) {
         // Получаем список пользователей и передаем в модель
-        return "category";  // Переход к странице списка пользователей
+        return "categories";  // Переход к странице списка пользователей
     }
-
-    @GetMapping("/goodsM")
-    public String showCGoodsManagerPage(Model model) {
-        // Получаем список пользователей и передаем в модель
-        return "goodsManager";  // Переход к странице списка пользователей
-    }
-//
-//    // API метод для получения всех пользователей в формате JSON
-//    @GetMapping("/users/all")
-//    @ResponseBody
-//    public List<UserEntity> getAllUsers() {
-//        return userService.getAllUsers();
-////        model.addAttribute("users", userService.getAllUsers());
-//
-//    }
-//
-//
-//
-//    // Страница добавления пользователя
-//    @GetMapping("/add")
-//    public String showAddUserForm(Model model) {
-//        model.addAttribute("user", new UserEntity());
-//        return "add-user";  // Отображаем форму добавления пользователя
-//    }
-//
-//    // Добавление пользователя
-//    @PostMapping
-//    public String addUser(@ModelAttribute UserEntity user) {
-//        userService.createUser(user);
-//        return "redirect:/admin/users";  // Перенаправляем на страницу с пользователями
-//    }
-//
-//    // Страница редактирования пользователя
-//    @GetMapping("/edit/{id}")
-//    public String showEditUserForm(@PathVariable Long id, Model model) {
-//        model.addAttribute("user", userService.getUserById(id));
-//        return "edit-user";  // Отображаем форму редактирования
-//    }
-//
-//    // Обновление пользователя
-//    @PostMapping("/edit/{id}")
-//    public String updateUser(@PathVariable Long id, @ModelAttribute UserEntity user) {
-//        userService.updateUser(id, user);
-//        return "redirect:/admin/users";  // Перенаправляем на страницу с пользователями
-//    }
-//
-//    // Удаление пользователя
-//    @PostMapping("/delete/{id}")
-//    public String deleteUser(@PathVariable Long id) {
-//        userService.deleteUser(id);
-//        return "redirect:/admin/users";  // Перенаправляем на страницу с пользователями
-//    }
-
-//    // Поиск пользователей по запросу
-//    @GetMapping("/search")
-//    @ResponseBody
-//    public List<UserEntity> searchUsers(@RequestParam String query) {
-//        return userService.searchUsers(query);
-//    }
 }

@@ -29,11 +29,18 @@ public class CompanyEntity {
   @OneToOne(mappedBy = "company")
   private OrderEntity order;
 
+  @Column(name = "name")
   private String name;
+
+  @Column(name = "address")
   private String address;
+
+  @Column(name = "phone")
   private String phone;
+
+  @Column(name = "email")
   private String email;
 
   @Column(name = "is_active")
-  private boolean active;
+  private Boolean isActive;
 }

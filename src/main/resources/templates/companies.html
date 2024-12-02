@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+
+    </div>
+</header>
+
+<main>
+    <div class="management">
+        <div class="management-title">
+            <h2>Контрагенты</h2>
+            <p></p>
+        </div>
+
+        <div class="management-actions">
+            <div class="button-container">
+                <button class="dashboard-item" onclick="loadCompanies()">Получить список контрагентов</button>
+            </div>
+            <div class="button-container">
+                <button class="dashboard-item" onclick="showAddCompanyForm()">Добавить контрагента</button>
+            </div>
+        </div>
+
+
+        <div class="table-container" id="companiesTableContainer" style="display:none; margin-top: 20px;">
+            <table id="table">
+                <thead>
+                <tr>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="nameSearch" placeholder="Поиск по названию"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('nameSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="addressSearch" placeholder="Поиск по адресу"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('addressSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="phoneSearch" placeholder="Поиск по телефону"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('phoneSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="emailSearch" placeholder="Поиск по телефону"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('emailSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <label for="statusSearch">Статус:</label>
+                            <select id="statusSearch" onchange="applyFilters()">
+                                <option value="">Все</option>
+                                <option value="true">Активен</option>
+                                <option value="false">Неактивен</option>
+                            </select>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="sort-container">
+                            <label for="companiesSort">Сортировать по:</label>
+                            <select id="companiesSort" onchange="applyFilters()">
+                                <option value="">Выберите</option>
+                                <option value="name_asc">Название (А-Я)</option>
+                                <option value="name_desc">Название (Я-А)</option>
+                                <option value="address_asc">Адрес (по возрастанию)</option>
+                                <option value="address_desc">Адрес (по убыванию)
+                                <option value="phone_asc">Телефон (по возрастанию)</option>
+                                <option value="phone_desc">Телефон (по убыванию)</option>
+                                <option value="email_asc">Email (по возрастанию)</option>
+                                <option value="email_desc">Email (по убыванию)</option>
+                            </select>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Название контрагента</th>
+                    <th>Адрес</th>
+                    <th>Телефон</th>
+                    <th>Email</th>
+                    <th>Статус</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="pagination" id="companiesPagination">
+                <button onclick="prevPage()">Назад</button>
+                <span id="companiesPageInfo">Страница 1</span>
+                <button onclick="nextPage()">Вперед</button>
+            </div>
+
+            <div class="page-size-selector">
+                <button onclick="setAmountPerPage(10)">10</button>
+                <button onclick="setAmountPerPage(30)">30</button>
+                <button onclick="setAmountPerPage(90)">90</button>
+            </div>
+
+            <button class="hide-table-btn" onclick="toggleCompaniesTableVisibility()">Скрыть таблицу</button>
+        </div>
+        <div class="add-form" id="addCompanyForm" style="display:none;">
+            <h3>Добавить контрагента</h3>
+            <form id="addCompanyFormElement">
+                <label for="addCompanyName">Название компании:</label>
+                <input type="text" id="addCompanyName" required>
+
+                <label for="addCompanyAddress">Адрес:</label>
+                <input type="text" id="addCompanyAddress" required>
+
+                <label for="addCompanyPhone">Телефон:</label>
+                <input type="text" id="addCompanyPhone" required>
+
+                <label for="addCompanyEmail">Email:</label>
+                <input type="email" id="addCompanyEmail" required>
+
+                <label for="addCompanyStatus">Статус:</label>
+                <select id="addCompanyStatus" required>
+                    <option value="true">Активен</option>
+                    <option value="false">Неактивен</option>
+                </select>
+
+                <button type="button" onclick="addCompany()">Добавить контрагента</button>
+                <button type="button" onclick="cancelAddCompany()">Отмена</button>
+            </form>
+        </div>
+
+        <div class="edit-form" id="editCompanyForm" style="display:none;">
+            <h3>Редактировать контрагента</h3>
+            <form id="editCompanyFormElement">
+                <input type="hidden" id="editCompanyId">
+
+                <label for="editCompanyName">Название компании:</label>
+                <input type="text" id="editCompanyName" required>
+
+                <label for="editCompanyAddress">Адрес:</label>
+                <input type="text" id="editCompanyAddress" required>
+
+                <label for="editCompanyPhone">Телефон:</label>
+                <input type="text" id="editCompanyPhone" required>
+
+                <label for="editCompanyEmail">Email:</label>
+                <input type="email" id="editCompanyEmail" required>
+
+                <label for="editCompanyStatus">Статус:</label>
+                <select id="editCompanyStatus" required>
+                    <option value="true">Активен</option>
+                    <option value="false">Неактивен</option>
+                </select>
+
+                <button type="button" onclick="updateCompany()">Обновить контрагента</button>
+                <button type="button" onclick="cancelEditCompany()">Отмена</button>
+            </form>
+        </div>
+
+
+
+    </div>
+</main>
+
+
+<footer>
+    <p>&copy; 2024 Система управления товарами и категориями</p>
+</footer>
+
+</body>
+<script>
+    let currentPage = 0;
+    let amountPerPage = 10;
+    let totalPages = 1;
+
+    function applyFilters() {
+        const nameSearch = document.getElementById('nameSearch').value;
+        const addressSearch = document.getElementById('addressSearch').value;
+        const phoneSearch = document.getElementById('phoneSearch').value;
+        const emailSearch = document.getElementById('emailSearch').value;
+        const statusSearch = document.getElementById('statusSearch').value;
+        const sortOption = document.getElementById('companiesSort').value;
+
+        loadCompanies(nameSearch, addressSearch, phoneSearch, emailSearch, statusSearch, sortOption);
+    }
+
+    function loadCompanies(name = '', address = '', phone = '', email = '', status = '', sort = '') {
+        const url = `/companies/page?page=${currentPage}&size=${amountPerPage}&name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}&phone=${encodeURIComponent(phone)}&email=${encodeURIComponent(email)}&isActive=${encodeURIComponent(status)}&sort=${encodeURIComponent(sort)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#table tbody');
+                tableBody.innerHTML = '';
+
+                data.content.forEach(company => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td>${company.name}</td>
+                    <td>${company.address}</td>
+                    <td>${company.phone}</td>
+                    <td>${company.email}</td>
+                    <td class="${company.isActive ? 'active' : 'inactive'}">
+                        ${company.isActive ? 'Активен ✅' : 'Неактивен ❌'}
+                    </td>
+                    <td>
+                        <a href="#" onclick="showEditCompanyForm('${company.id}', '${company.name}', '${company.address}', '${company.email}', ${company.isActive})">Редактировать</a>
+                        <a href="#" onclick="deactivateCompanyById('${company.id}')">Деактивировать</a>
+                    </td>
+                `;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById('companiesPageInfo').textContent = `Страница ${data.number + 1} из ${data.totalPages}`;
+                currentPage = data.number;
+                totalPages = data.totalPages;
+                document.getElementById('companiesTableContainer').style.display = 'block';
+            })
+            .catch(error => console.error('Ошибка при получении компаний:', error));
+    }
+
+    function deactivateCompanyById(companyId) {
+        fetch('/companies/deactivate?id=' + companyId, {
+            method: 'POST',
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Компания деактивирована');
+                    loadCompanies();
+                } else {
+                    alert('Произошла ошибка при деактивации компании');
+                }
+            })
+            .catch(error => alert('Произошла ошибка: ' + error));
+    }
+
+    function prevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            loadCompanies();
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            loadCompanies();
+        }
+    }
+
+    function setAmountPerPage(size) {
+        amountPerPage = size;
+        currentPage = 0;
+        loadCompanies();
+    }
+
+    function toggleCompaniesTableVisibility() {
+        const tableContainer = document.getElementById('companiesTableContainer');
+        tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function resetInput(inputId) {
+        document.getElementById(inputId).value = '';
+        applyFilters();
+    }
+
+    // Показать форму для добавления компании
+    function showAddCompanyForm() {
+        document.getElementById('addCompanyForm').style.display = 'block';
+    }
+
+    // Скрыть форму добавления компании
+    function cancelAddCompany() {
+        document.getElementById('addCompanyForm').style.display = 'none';
+    }
+
+    // Добавить компанию
+    function addCompany() {
+        const newCompany = {
+            name: document.getElementById('addCompanyName').value,
+            address: document.getElementById('addCompanyAddress').value,
+            phone: document.getElementById('addCompanyPhone').value,
+            email: document.getElementById('addCompanyEmail').value,
+            isActive: document.getElementById('addCompanyStatus').value === 'true'
+        };
+
+        fetch('/companies/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newCompany)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Компания успешно добавлена.');
+                    loadCompanies();
+                    cancelAddCompany();
+                } else {
+                    alert('Ошибка при добавлении компании.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении компании:', error);
+            });
+    }
+
+    // Показать форму для редактирования компании
+    function showEditCompanyForm(id, name, address, phone, email, isActive) {
+        document.getElementById('editCompanyId').value = id;
+        document.getElementById('editCompanyName').value = name;
+        document.getElementById('editCompanyAddress').value = address;
+        document.getElementById('editCompanyPhone').value = phone;
+        document.getElementById('editCompanyEmail').value = email;
+        document.getElementById('editCompanyStatus').value = isActive ? 'true' : 'false';
+        document.getElementById('editCompanyForm').style.display = 'block';
+    }
+
+    // Скрыть форму редактирования компании
+    function cancelEditCompany() {
+        document.getElementById('editCompanyForm').style.display = 'none';
+    }
+
+    // Обновить информацию о компании
+    function updateCompany() {
+        const updatedCompany = {
+            id: document.getElementById('editCompanyId').value,
+            name: document.getElementById('editCompanyName').value,
+            address: document.getElementById('editCompanyAddress').value,
+            phone: document.getElementById('editCompanyPhone').value,
+            email: document.getElementById('editCompanyEmail').value,
+            isActive: document.getElementById('editCompanyStatus').value === 'true'
+        };
+
+        fetch('/companies/change', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedCompany)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Компания обновлена.');
+                    loadCompanies();
+                    cancelEditCompany();
+                } else {
+                    alert('Ошибка при обновлении компании.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении компании:', error);
+            });
+    }
+</script>

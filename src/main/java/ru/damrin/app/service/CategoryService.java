@@ -17,6 +17,7 @@ import ru.damrin.app.model.category.CategoryRequest;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -26,20 +27,18 @@ public class CategoryService {
   private final CategoryMapper mapper;
   private final CategoryRepository repository;
   private final GoodRepository goodRepository;
+  private final SortService sortService;
 
-  public Page<CategoryDto> getAllCategories(String name, BigDecimal markupPercentage, int page, int size, Sort sort) {
-    Pageable pageable = PageRequest.of(page, size, sort != null ? sort : Sort.unsorted());
+  public List<CategoryDto> getAllCategories() {
+    return repository.findAll().stream()
+        .map(mapper::toDto).toList();
+  }
 
-    // Применяем фильтры и сортировку
-    if (name != null && markupPercentage != null) {
-      return repository.findByNameContainingAndMarkupPercentage(name, markupPercentage, pageable).map(mapper::toDto);
-    } else if (name != null) {
-      return repository.findByNameContaining(name, pageable).map(mapper::toDto);
-    } else if (markupPercentage != null) {
-      return repository.findByMarkupPercentage(markupPercentage, pageable).map(mapper::toDto);
-    } else {
-      return repository.findAll(pageable).map(mapper::toDto);
-    }
+  public Page<CategoryDto> getPageCategories(String name, BigDecimal markupPercentage, int page, int size, String sort) {
+    Sort sortOrder = sortService.getSortOrderForCategory(sort);
+    Pageable pageable = PageRequest.of(page, size, sortOrder != null ? sortOrder : Sort.unsorted());
+    return repository.findByFilters(name, markupPercentage, pageable)
+        .map(mapper::toDto);
   }
 
   public void addCategory(CategoryDto categoryDto) {

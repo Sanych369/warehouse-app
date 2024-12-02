@@ -12,6 +12,7 @@ import ru.damrin.app.model.good.GoodDto;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING,
     uses = {CategoryMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface GoodMapper {
+
   GoodEntity toEntity(GoodDto goodDto);
 
   GoodDto toDto(GoodEntity goodEntity);

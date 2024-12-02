@@ -1,6 +1,5 @@
 package ru.damrin.app.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -11,12 +10,14 @@ import ru.damrin.app.db.entity.OrderEntity;
 import ru.damrin.app.db.entity.OrdersGoodsEntity;
 import ru.damrin.app.db.repository.CompanyRepository;
 import ru.damrin.app.db.repository.GoodRepository;
-import ru.damrin.app.db.repository.OrdersGoodsRepository;
 import ru.damrin.app.db.repository.OrdersRepository;
 import ru.damrin.app.db.repository.UserRepository;
 import ru.damrin.app.mapper.OrderMapper;
 import ru.damrin.app.model.order.CreateOrderDto;
+import ru.damrin.app.model.order.OrderDto;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -25,26 +26,36 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderService {
 
-  private final OrdersGoodsRepository ordersGoodsRepository;
   private final OrderMapper orderMapper;
   private final GoodRepository goodRepository;
   private final UserRepository userRepository;
   private final OrdersRepository ordersRepository;
   private final CompanyRepository companyRepository;
 
-//  public List<OrderDto> findAll() {
-//    return ordersGoodsRepository.findAll().stream()
-//        .map(orderMapper::toDto)
-//        .toList();
-//  }
-//
-//  public List<OrderDto> findAllByUserId(long userId) {
-//    return repository.findAllByUserIdAndCreatedAt(userId, LocalDate.now()).stream()
-//        .map(orderMapper::toDto)
-//        .toList();
-//  }
+  public List<OrderDto> findAll() {
+    return ordersRepository.findAllByOrderByCreatedAtDesc().stream()
+        .map(orderMapper::toDto)
+        .toList();
+  }
+
+  public List<OrderDto> findAllByUserId(Long userId) {
+    return ordersRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
+        .map(orderMapper::toDto)
+        .toList();
+  }
+
+  public List<OrderDto> findCurrentOrdersByUserId(long userId) {
+    return ordersRepository.findAllByUserIdAndCreatedAt(userId, LocalDate.now()).stream()
+        .map(orderMapper::toDto)
+        .toList();
+  }
 
   public void createOrder(CreateOrderDto orderDto) {
+    var company = companyRepository.findById(orderDto.companyId())
+        .orElseThrow(() -> new WarehouseAppException("Компания не найдена."));
+    if (!company.getIsActive()) {
+      throw new WarehouseAppException("Компания неактивна. Заказы оформляются только на активные компании");
+    }
     var invalidQuantityGoods = orderDto.goodOrders().stream()
         .map(goodOrderDto -> {
           var good = goodRepository.findById(goodOrderDto.goodId())
@@ -76,7 +87,6 @@ public class OrderService {
 
       final var good = goodRepository.findById(goodOrderDto.goodId())
           .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
-
 
       order.addOrdersGoods(
           OrdersGoodsEntity.builder()

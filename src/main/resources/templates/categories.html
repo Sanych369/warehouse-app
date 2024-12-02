@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление товарами и категориями</title>
+    <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+
+<header>
+    <div class="container">
+
+    </div>
+</header>
+
+<main>
+    <div class="management">
+        <div class="management-title">
+            <h2>Управление товарами и категориями</h2>
+            <p>Здесь вы можете управлять товарами и категориями системы.</p>
+        </div>
+
+        <div class="management-actions">
+            <div class="button-container">
+                <button class="dashboard-item" onclick="loadCategories()">Получить список категорий</button>
+            </div>
+            <div class="button-container">
+                <button class="dashboard-item" onclick="showAddCategoryForm()">Добавить категорию</button>
+            </div>
+        </div>
+
+
+        <div class="table-container" id="categoriesTableContainer" style="display:none; margin-top: 20px;">
+            <table id="table">
+                <thead>
+                <tr>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="text" id="categorySearch" placeholder="Поиск по названию"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('categorySearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="input-with-reset">
+                            <input type="number" id="markupSearch" placeholder="Поиск по наценке" step="0.01" min="0"
+                                   oninput="applyFilters()">
+                            <button type="button" onclick="resetInput('markupSearch')" class="reset-button">&#10006;
+                            </button>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="sort-container">
+                            <label for="categorySort">Сортировать по:</label>
+                            <select id="categorySort" onchange="applyFilters()">
+                                <option value="">Выберите</option>
+                                <option value="name_asc">Название (А-Я)</option>
+                                <option value="name_desc">Название (Я-А)</option>
+                                <option value="markup_asc">Наценка (по возрастанию)</option>
+                                <option value="markup_desc">Наценка (по убыванию)</option>
+                            </select>
+                        </div>
+                    </th>
+                </tr>
+                <tr>
+                    <th>Название категории</th>
+                    <th>Процент наценки</th>
+                    <th>Действия</th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="pagination" id="categoriesPagination">
+                <button onclick="prevPage()">Назад</button>
+                <span id="categoriesPageInfo">Страница 1</span>
+                <button onclick="nextPage()">Вперед</button>
+            </div>
+
+            <div class="page-size-selector">
+                <button onclick="setAmountPerPage(10)">10</button>
+                <button onclick="setAmountPerPage(30)">30</button>
+                <button onclick="setAmountPerPage(90)">90</button>
+            </div>
+
+            <button class="hide-table-btn" onclick="toggleCategoriesTableVisibility()">Скрыть таблицу</button>
+        </div>
+
+        <div class="add-category-form" id="addCategoryForm" style="display:none;">
+            <h3>Добавить категорию</h3>
+            <form id="addCategoryFormElement">
+                <label for="addCategoryName">Название категории:</label>
+                <input type="text" id="addCategoryName" required>
+                <label for="addMarkupPercentage">Процент наценки:</label>
+                <input type="number" id="addMarkupPercentage" required step="0.01" min="0" max="100">
+                <button type="button" onclick="addCategory()">Добавить категорию</button>
+                <button type="button" onclick="cancelAddCategory()">Отмена</button>
+            </form>
+        </div>
+        <div class="edit-category-form" id="editCategoryForm" style="display:none;">
+            <h3>Редактировать категорию</h3>
+            <form id="editCategoryFormElement">
+                <input type="hidden" id="editCategoryId">
+
+                <label for="editCategoryName">Название категории:</label>
+                <input type="text" id="editCategoryName" required>
+
+                <label for="editMarkupPercentage">Процент наценки:</label>
+                <input type="number" id="editMarkupPercentage" required step="0.01" min="0" max="100">
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="editNeedRecalculation">
+                    <label for="editNeedRecalculation">Обновить процент наценки для товаров в этой категории:</label>
+                </div>
+
+                <button type="button" onclick="updateCategory()">Обновить категорию</button>
+                <button type="button" onclick="cancelEditCategory()">Отмена</button>
+            </form>
+        </div>
+        <div id="confirmDeleteModal" style="display: none;">
+            <div class="modal-content">
+                <p id="modalMessage"></p>
+                <button type="button" id="writeOffGoodsBtn">Списать товары</button>
+                <button type="button" id="cancelDeleteBtn">Отмена</button>
+            </div>
+        </div>
+
+    </div>
+
+
+</main>
+
+<footer>
+    <p>&copy; 2024 Система управления товарами и категориями</p>
+</footer>
+<script>
+    let currentPage = 0;
+    let amountPerPage = 10;
+    let totalPages = 1;
+
+    function applyFilters() {
+        const categorySearch = document.getElementById('categorySearch').value;
+        const markupSearch = document.getElementById('markupSearch').value;
+        const sortOption = document.getElementById('categorySort').value;
+
+        loadCategories(categorySearch, markupSearch, sortOption);
+    }
+
+    function loadCategories(name = '', markupPercentage = '', sort = '') {
+        const url = `/categories/page?page=${currentPage}&size=${amountPerPage}&name=${name}&markupPercentage=${markupPercentage}&sort=${sort}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#table tbody');
+                tableBody.innerHTML = '';
+
+                data.content.forEach(category => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td>${category.name}</td>
+                    <td>${category.markupPercentage}%</td>
+                    <td>
+                        <a href="#" onclick="showEditCategoryForm('${category.id}', '${category.name}', ${category.markupPercentage})">Редактировать</a>
+                        <a href="#" onclick="deleteCategoryById('${category.id}')">Удалить</a>
+                    </td>
+                `;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById('categoriesPageInfo').textContent = `Страница ${data.number + 1} из ${data.totalPages}`;
+                currentPage = data.number;
+                totalPages = data.totalPages;
+                document.getElementById('categoriesTableContainer').style.display = 'block';
+            })
+            .catch(error => console.error('Ошибка при получении категорий:', error));
+    }
+
+    function prevPage() {
+        if (currentPage > 0) {
+            currentPage--;
+            loadCategories();
+        }
+    }
+
+    function nextPage() {
+        if (currentPage < totalPages - 1) {
+            currentPage++;
+            loadCategories();
+        }
+    }
+
+    function setAmountPerPage(size) {
+        amountPerPage = size;
+        currentPage = 0;
+        loadCategories();
+    }
+
+    function toggleCategoriesTableVisibility() {
+        const tableContainer = document.getElementById('categoriesTableContainer');
+        tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
+    }
+
+
+    function showAddCategoryForm() {
+        document.getElementById('addCategoryForm').style.display = 'block';
+    }
+
+    function cancelAddCategory() {
+        document.getElementById('addCategoryForm').style.display = 'none';
+    }
+
+    function addCategory() {
+        const newCategory = {
+            name: document.getElementById('addCategoryName').value,
+            markupPercentage: parseFloat(document.getElementById('addMarkupPercentage').value) // Добавляем процент наценки
+        };
+
+        fetch('/categories/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newCategory)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Категория успешно добавлена.');
+                    loadCategories();
+                    cancelAddCategory();
+                } else {
+                    alert('Ошибка при добавлении категории.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении категории:', error);
+            });
+    }
+
+    function deleteCategoryById(categoryId) {
+        const confirmation = confirm('Вы уверены, что хотите удалить эту категорию?');
+        if (confirmation) {
+            fetch(`/categories/delete?id=${categoryId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Категория удалена.');
+                        loadCategories();
+                    } else if (response.status === 409) {
+                        response.json().then(data => {
+                            const message = data.message;
+                            showConfirmDeleteModal(message);
+                        });
+                    } else {
+                        alert('Ошибка при удалении категории.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении категории:', error);
+                });
+        }
+    }
+
+    function showConfirmDeleteModal(message) {
+        const modal = document.getElementById('confirmDeleteModal');
+        const modalMessage = document.getElementById('modalMessage');  // Элемент для сообщения
+        const writeOffButton = document.getElementById('writeOffGoodsBtn');  // Кнопка списания товаров
+
+        modalMessage.innerText = message;
+
+
+        modal.style.display = 'flex';
+        writeOffButton.style.display = 'block';
+    }
+
+
+    function hideConfirmDeleteModal() {
+        const modal = document.getElementById('confirmDeleteModal');
+        modal.style.display = 'none'; // Скрываем модальное окно
+    }
+
+    document.getElementById('writeOffGoodsBtn').addEventListener('click', function () {
+        window.location.href = '/write-off-goods'; // Перенаправление на страницу списания товаров
+    });
+
+    document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
+        hideConfirmDeleteModal(); // Закрыть окно
+    });
+
+    function showEditCategoryForm(id, name, markupPercentage) {
+        document.getElementById('editCategoryId').value = id;
+        document.getElementById('editCategoryName').value = name;
+        document.getElementById('editMarkupPercentage').value = markupPercentage;
+        document.getElementById('editCategoryForm').style.display = 'block';
+    }
+
+    function cancelEditCategory() {
+        document.getElementById('editCategoryForm').style.display = 'none';
+    }
+
+    function updateCategory() {
+        const updatedCategory = {
+            id: document.getElementById('editCategoryId').value,
+            name: document.getElementById('editCategoryName').value,
+            markupPercentage: parseFloat(document.getElementById('editMarkupPercentage').value),
+        };
+
+        const needRecalculation = document.getElementById('editNeedRecalculation').checked;
+
+        const request = {
+            categoryDto: updatedCategory,
+            needRecalculation: needRecalculation
+        };
+
+        fetch('/categories/change', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Категория обновлена.');
+                    loadCategories();
+                    cancelEditCategory();
+                } else {
+                    alert('Ошибка при обновлении категории.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении категории:', error);
+            });
+    }
+
+    function resetInput(inputId) {
+        document.getElementById(inputId).value = '';
+        applyFilters();
+    }
+
+</script>
