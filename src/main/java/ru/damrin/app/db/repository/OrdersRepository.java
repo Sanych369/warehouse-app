@@ -10,7 +10,8 @@ import java.util.Set;
 @Repository
 public interface OrdersRepository extends JpaRepository<OrderEntity, Long> {
 
-  Set<OrderEntity> findAllByCreatedAtBefore(LocalDate createdAt);
+  Set<OrderEntity> findAllByCreatedAtBetween(LocalDate from, LocalDate to);
+  Set<OrderEntity> findAllByUserIdAndCreatedAtBetween(Long userId, LocalDate from, LocalDate to);
 
   Set<OrderEntity> findAllByUserIdAndCreatedAt(Long userId, LocalDate createdAt);
 
