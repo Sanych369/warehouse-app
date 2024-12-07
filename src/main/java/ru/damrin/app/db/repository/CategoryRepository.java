@@ -10,6 +10,9 @@ import ru.damrin.app.db.entity.CategoryEntity;
 
 import java.math.BigDecimal;
 
+/**
+ * Слой репозитория для запросов категорий.
+ */
 @Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
 

@@ -1,10 +1,7 @@
 package ru.damrin.app.model;
 
 /**
- * DTO for {@link ru.damrin.app.db.entity.OrdersGoodsEntity}
+ * DTO получения информации о заказе.
  */
 public record OrdersGoodsDto(Long id, String goodName, Long sum, Long quantity) {
-  public OrdersGoodsDto(Long id, String goodName, Long quantity) {
-    this(id, goodName, null, quantity);
-  }
 }

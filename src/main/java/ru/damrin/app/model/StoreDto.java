@@ -1,11 +1,10 @@
 package ru.damrin.app.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 /**
- * DTO for {@link ru.damrin.app.db.entity.StoreEntity}
+ * DTO получения информации о складе.
  */
-public record StoreDto(String responsiblePerson, String goodName, BigDecimal purchasePrice, Long arrivedTotal,
-                       Long consumptionTotal, String reason, LocalDateTime createdAt) {
+public record StoreDto(String goodName, BigDecimal purchasePrice, Long arrivedTotal, Long consumptionTotal,
+                       String reason) {
 }

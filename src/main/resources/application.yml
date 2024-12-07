@@ -2,4 +2,6 @@ spring:
   application:
     name: warehouse-app
   config:
-    import: application-db.yml
+    import:
+      application-db.yml,
+      application-logging.yml

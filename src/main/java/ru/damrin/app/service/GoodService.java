@@ -1,6 +1,7 @@
 package ru.damrin.app.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +15,9 @@ import ru.damrin.app.mapper.GoodMapper;
 import ru.damrin.app.model.good.GoodDto;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoodService {
@@ -23,6 +26,16 @@ public class GoodService {
   private final GoodRepository goodRepository;
   private final SortService sortService;
   private final GoodMapper mapper;
+
+  public List<GoodDto> getAllGoods() {
+    return goodRepository.findAll().stream().map(mapper::toDto).toList();
+  }
+
+  public Page<GoodDto> getGoodsForOrder(String name, Long categoryId, int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    return goodRepository.findByFiltersForOrder(name, categoryId, pageable)
+        .map(mapper::toDto);
+  }
 
   public Page<GoodDto> getGoods(String name,
                                 String category,
@@ -33,37 +46,37 @@ public class GoodService {
                                 int page,
                                 int size) {
 
-    Sort sortOrder = sortService.getSortOrderForGoods(sort);
-    Pageable pageable = PageRequest.of(page, size, sortOrder != null
-        ? sortOrder
-        : Sort.unsorted());
+    final var sortOrder = sortService.getSortOrderForGoods(sort);
+    final var pageable = PageRequest.of(page, size, sortOrder != null ? sortOrder : Sort.unsorted());
+
     return goodRepository.findByFilters(name, category, purchasePrice, salePrice, balance, pageable)
         .map(mapper::toDto);
   }
 
   public void addGood(GoodDto goodDto) {
-    var category = categoryRepository.findById(goodDto.category().id())
+    log.info("Start add new good with name: {}", goodDto.name());
+    final var category = categoryRepository.findById(goodDto.category().id())
         .orElseThrow(() -> new WarehouseAppException("Категория не найдена"));
 
-    var good = GoodEntity.builder()
+    final var good = GoodEntity.builder()
         .name(goodDto.name())
         .category(category)
-        .balance(0L)
         .purchasePrice(goodDto.purchasePrice())
         .build();
+
     goodRepository.save(good);
+    log.info("End add new good with name: {}", goodDto.name());
   }
 
   public void updateGood(GoodDto goodDto) {
-    GoodEntity good = goodRepository.findById(goodDto.id())
+    log.info("Start update good");
+    var good = goodRepository.findById(goodDto.id())
         .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
-    var category = categoryRepository.findById(goodDto.category().id())
-        .orElseThrow(() -> new WarehouseAppException("Категория не найдена"));
-    good.setName(goodDto.name());
-    good.setPurchasePrice(goodDto.purchasePrice());
-    good.setSalePrice(goodDto.salePrice());
-    good.setCategory(category);
+    final var goodName = good.getName();
+    log.info("Update good: {}", goodName);
+    mapper.partialUpdate(goodDto, good);
     goodRepository.save(good);
+    log.info("End update good with name: {}", goodName);
   }
 
   public void deleteGoodById(Long id) {

@@ -16,7 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.entity.OrderEntity;
-import ru.damrin.app.model.StoreDto;
+import ru.damrin.app.db.entity.StoreEntity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -129,7 +129,7 @@ public class ReportGeneratorService {
     return getBytesReport(sheetName, workbook);
   }
 
-  public byte[] generateStoreReport(List<StoreDto> storeDtoSet, String sheetName) {
+  public byte[] generateStoreReport(List<StoreEntity> storeEntities, String sheetName) {
     var workbook = new XSSFWorkbook();
 
     var sheet = workbook.createSheet(String.format(sheetName));
@@ -191,61 +191,61 @@ public class ReportGeneratorService {
     BigDecimal arrivalSum = BigDecimal.ZERO;
     BigDecimal consumptionSum = BigDecimal.ZERO;
 
-    for (StoreDto storeDto : storeDtoSet) {
+    for (var store : storeEntities) {
 
-      Row row = sheet.createRow(rowNum++);
+      var row = sheet.createRow(rowNum++);
       int cellNum = 0;
 
-      Cell cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.createdAt());
+      var cell = row.createCell(cellNum++);
+      cell.setCellValue(store.getCreatedAt());
       cell.setCellStyle(dateStyle);
 
       cell = row.createCell(cellNum++);
-      var responsiblePerson = storeDto.responsiblePerson();
+      var responsiblePerson = store.getResponsiblePerson();
       cell.setCellValue(responsiblePerson);
       responsiblePersonMaxWidth = Math.max(responsiblePerson.length(), responsiblePersonMaxWidth);
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum++);
-      var goodName = storeDto.goodName();
+      var goodName = store.getGood().getName();
       cell.setCellValue(goodName);
       goodNameMaxWidth = Math.max(goodName.length(), goodNameMaxWidth);
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum++, NUMERIC);
-      var purchasePrice = storeDto.purchasePrice().toString();
+      var purchasePrice = store.getPurchasePrice().toString();
       cell.setCellValue(purchasePrice);
       purchasePriceMaxWidth = Math.max(purchasePrice.length(), purchasePriceMaxWidth);
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum++, NUMERIC);
-      var arrived = storeDto.arrivedTotal().toString();
+      var arrived = store.getArrivedTotal().toString();
       cell.setCellValue(arrived);
       arrivedTotalMaxWidth = Math.max(arrived.length(), arrivedTotalMaxWidth);
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum++, NUMERIC);
-      var consumption = storeDto.consumptionTotal().toString();
+      var consumption = store.getConsumptionTotal().toString();
       cell.setCellValue(consumption);
       consumptionTotalMaxWidth = Math.max(consumption.length(), consumptionTotalMaxWidth);
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum++);
-      var reason = storeDto.reason();
+      var reason = store.getReason();
       cell.setCellValue(reason);
       reasonMaxWidth = Math.max(reason.length(), reasonMaxWidth);
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum++, NUMERIC);
-      var arrivalTotal = storeDto.purchasePrice()
-          .multiply(BigDecimal.valueOf(storeDto.arrivedTotal()));
+      var arrivalTotal = store.getPurchasePrice()
+          .multiply(BigDecimal.valueOf(store.getArrivedTotal()));
       arrivalSum = arrivalSum.add(arrivalTotal);
       cell.setCellValue(arrivalTotal.toString());
       cell.setCellStyle(style);
 
       cell = row.createCell(cellNum, NUMERIC);
-      var consumptionTotal = storeDto.purchasePrice()
-          .multiply(BigDecimal.valueOf(storeDto.consumptionTotal()));
+      var consumptionTotal = store.getPurchasePrice()
+          .multiply(BigDecimal.valueOf(store.getConsumptionTotal()));
       consumptionSum = consumptionSum.add(consumptionTotal);
       cell.setCellValue(consumptionTotal.toString());
       cell.setCellStyle(style);
@@ -284,6 +284,7 @@ public class ReportGeneratorService {
 
   private CellStyle headerCellStyle(XSSFWorkbook workbook) {
     var headerStyle = workbook.createCellStyle();
+
     headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
     headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
     headerStyle.setAlignment(HorizontalAlignment.CENTER);
@@ -292,6 +293,7 @@ public class ReportGeneratorService {
     font.setFontName("ComicSansMs");
     font.setBold(true);
     headerStyle.setFont(font);
+
     return headerStyle;
   }
 
@@ -304,6 +306,7 @@ public class ReportGeneratorService {
 
   private CellStyle cellStyle(XSSFWorkbook workbook) {
     var style = workbook.createCellStyle();
+
     style.setWrapText(false);
     style.setAlignment(HorizontalAlignment.CENTER);
     style.setVerticalAlignment(VerticalAlignment.CENTER);
@@ -315,18 +318,18 @@ public class ReportGeneratorService {
     style.setBorderLeft(BorderStyle.THIN);
     style.setBottomBorderColor(IndexedColors.BLACK.index);
     style.setBorderBottom(BorderStyle.THIN);
+
     return style;
   }
 
   private byte[] getBytesReport(String sheetName, XSSFWorkbook workbook) {
-    try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       workbook.write(outputStream);
       workbook.close();
       return outputStream.toByteArray();
     } catch (IOException e) {
       log.error("Error while generating report. Cause: {}", e.getMessage());
-      throw new WarehouseAppException(String.format("Ошибка в генерации отчёта %s", sheetName));
+      throw new WarehouseAppException(String.format("Не удалось сгенерировать отчёт %s", sheetName));
     }
   }
 }

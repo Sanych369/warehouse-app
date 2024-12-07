@@ -58,4 +58,17 @@ public class SortService {
       default -> Sort.by(Sort.Direction.ASC, "name");
     };
   }
+
+  public Sort getSortOrderForOrders(String sort) {
+    return switch (sort) {
+      case "manager_asc" -> Sort.by(Sort.Direction.ASC, "user.name");
+      case "manager_desc" -> Sort.by(Sort.Direction.DESC, "user.name");
+      case "company_asc" -> Sort.by(Sort.Direction.ASC, "company.name");
+      case "company_desc" -> Sort.by(Sort.Direction.DESC, "company.name");
+      case "date_desc" -> Sort.by(Sort.Direction.DESC, "createdAt");
+      case "total_asc" -> Sort.by(Sort.Direction.ASC, "totalAmount");
+      case "total_desc" -> Sort.by(Sort.Direction.DESC, "totalAmount");
+      default -> Sort.by(Sort.Direction.ASC, "createdAt");
+    };
+  }
 }

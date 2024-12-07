@@ -53,28 +53,29 @@ public class CompanyService {
     Sort sortOrder = sortService.getSortOrderForCompanies(sort);
     Pageable pageable = PageRequest.of(page, size, sortOrder != null ? sortOrder : Sort.unsorted());
 
-    return repository.findByFilters(name, address, phone, email, isActive, pageable).map(companyMapper::toDto);
+    return repository.findByFilters(name, address, phone, email, isActive, pageable)
+        .map(companyMapper::toDto);
   }
 
-  // при добавлении флаг не обязателен - сразу активная фирма
   public void addCompany(CompanyDto companyDto) {
     log.info("Add company: {} with address: {}", companyDto.name(), companyDto.address());
     var company = companyMapper.toEntity(companyDto);
-    var entity = repository.save(company);
-    log.info("Added company: {} for id {}", company, entity.getId());
+    repository.save(company);
+    log.info("Company {} was added", companyDto.name());
   }
 
-  //Не удаляем, делаем неактивной, иначе упадёт история заказов
   public void deactivateCompanyById(Long id) {
     log.info("Deactivate company by id: {}", id);
     var company = repository.findById(id).orElseThrow(
         () -> new WarehouseAppException("Компания не найдена"));
+
     company.setIsActive(false);
     repository.save(company);
+    log.info("Company {} was deactivated", company.getName());
   }
 
-  // Тут нужна пропертя active bool
   public void changeCompany(CompanyDto companyDto) {
+    log.info("Change company: {} with address: {}", companyDto.name(), companyDto.address());
     var company = repository.findById(companyDto.id())
         .orElseThrow(() -> new WarehouseAppException("Компания не найдена"));
     var companyName = company.getName();

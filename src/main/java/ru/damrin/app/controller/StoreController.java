@@ -12,6 +12,9 @@ import ru.damrin.app.service.StoreService;
 
 import java.util.List;
 
+/**
+ * Контроллер для управления складом.
+ */
 @Controller
 @RequestMapping("/store")
 @RequiredArgsConstructor

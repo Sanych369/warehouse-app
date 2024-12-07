@@ -2,7 +2,6 @@ package ru.damrin.app.common.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import ru.damrin.app.common.enums.GoodCategory;
 import ru.damrin.app.common.enums.Position;
 
 import java.util.Arrays;

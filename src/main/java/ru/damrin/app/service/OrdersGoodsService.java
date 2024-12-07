@@ -1,5 +1,6 @@
 package ru.damrin.app.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import ru.damrin.app.db.repository.OrdersGoodsRepository;
 import ru.damrin.app.db.repository.OrdersRepository;
 import ru.damrin.app.mapper.OrdersGoodsMapper;
 import ru.damrin.app.model.OrdersGoodsDto;
+import ru.damrin.app.model.order.AddGoodToOrderDto;
 
 import java.util.List;
 
@@ -29,60 +31,73 @@ public class OrdersGoodsService {
         .toList();
   }
 
-  public void addGoodToOrdersGoods(Long orderId, String goodName, Long quantity) {
-    var good = goodRepository.findByName(goodName)
-        .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
-    if (quantity > good.getBalance()) {
-      throw new WarehouseAppException(String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", good.getBalance()));
-    }
+  @Transactional
+  public void addGoodToOrdersGoods(List<AddGoodToOrderDto> goods) {
+    goods.forEach(addGood -> {
+      var good = goodRepository.findById(addGood.goodId())
+          .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
 
-    var order = ordersRepository.findById(orderId)
-        .orElseThrow(() -> new WarehouseAppException("Заказ не найден"));
+      var quantity = addGood.quantity();
 
-    order.addOrdersGoods(OrdersGoodsEntity.builder()
-        .quantity(quantity)
-        .goodName(goodName)
-        .sum(good.getSalePrice() * quantity)
-        .build());
+      if (quantity > good.getBalance()) {
+        throw new WarehouseAppException(
+            String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", good.getBalance()));
+      }
 
-    good.setBalance(good.getBalance() - quantity);
+      var order = ordersRepository.findById(addGood.orderId())
+          .orElseThrow(() -> new WarehouseAppException("Заказ не найден"));
 
-    ordersRepository.save(order);
-    goodRepository.save(good);
+      good.setBalance(good.getBalance() - quantity);
+
+      order.addOrdersGoods(OrdersGoodsEntity.builder()
+          .good(good)
+          .quantity(quantity)
+          .sum(good.getSalePrice() * quantity)
+          .build());
+
+      ordersRepository.save(order);
+      log.info("Adding {} good {} to order {}", quantity, good.getName(), addGood.orderId());
+    });
   }
 
   //  OrdersGoodsDto
   public void changeOrdersGoodsByOrderId(OrdersGoodsDto ordersGoodsDto) {
+    log.info("Changed order by good {} quantity {}", ordersGoodsDto.goodName(), ordersGoodsDto.quantity());
+
     var orderGood = ordersGoodsRepository.findById(ordersGoodsDto.id())
         .orElseThrow(() -> new WarehouseAppException("Данный товар не найден в заказе."));
-    if (orderGood.getQuantity() <= 0) {
+
+    final var orderQuantity = orderGood.getQuantity();
+
+    if (orderQuantity <= 0) {
       throw new WarehouseAppException("Новое количество не может быть меньше или равно нулю. Если нет необходимости в оформлении данной позиции - удалите");
     }
 
-    if (ordersGoodsDto.quantity().equals(orderGood.getQuantity())) {
-      throw new WarehouseAppException("Новые данные идентичны текущему заказу");
+    if (ordersGoodsDto.quantity().equals(orderQuantity)) {
+      throw new WarehouseAppException("Новые данные идентичны существующему заказу");
     }
 
     var good = goodRepository.findByName(orderGood.getGoodName())
         .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
 
-    var quantityDifference = ordersGoodsDto.quantity() - orderGood.getQuantity();
-    var currentBalance = good.getBalance();
+    final var quantityDifference = ordersGoodsDto.quantity() - orderQuantity;
+    final var currentBalance = good.getBalance();
 
-    var newBalance = currentBalance - quantityDifference;
+    final var newBalance = currentBalance - quantityDifference;
 
     if (newBalance < 0) {
       throw new WarehouseAppException(String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", currentBalance));
     }
 
     good.setBalance(newBalance);
+    orderGood.setGood(good);
 
     orderGood.setQuantity(ordersGoodsDto.quantity());
     orderGood.setSum(ordersGoodsDto.quantity() * good.getSalePrice());
     orderGood.getOrder().addOrdersGoods(orderGood);
 
-    goodRepository.save(good);
     ordersGoodsRepository.save(orderGood);
+    log.info("Order was changed successfully");
   }
 
   public void deleteOrdersGoodsByOrderId(Long ordersGoodsId, Long orderId) {
@@ -91,6 +106,8 @@ public class OrdersGoodsService {
 
     var goodName = ordersGood.getGoodName();
 
+    log.info("Deleting good: {} from order with id: {}", goodName, orderId);
+
     var order = ordersRepository.findById(orderId)
         .orElseThrow(() -> new WarehouseAppException("Заказ не найден"));
     order.removeOrdersGoodsByName(goodName);
@@ -98,9 +115,9 @@ public class OrdersGoodsService {
     var good = goodRepository.findByName(goodName)
         .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
 
-    //Возвращаем товары на баланс при удалении из заказа
     good.setBalance(good.getBalance() + ordersGood.getQuantity());
     ordersRepository.save(order);
     goodRepository.save(good);
+    log.info("Successfully deleted good: {} from order with id: {}", goodName, orderId);
   }
 }

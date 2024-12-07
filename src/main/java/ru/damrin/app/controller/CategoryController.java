@@ -3,7 +3,6 @@ package ru.damrin.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -24,6 +23,9 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 
+/**
+ * Контроллер для управления категориями товаров.
+ */
 @Controller
 @RequestMapping("/categories")
 @RequiredArgsConstructor
@@ -63,7 +65,6 @@ public class CategoryController {
     return ResponseEntity.ok().build();
   }
 
-  // CATEGORY + BOOL
   @PostMapping("/change")
   public ResponseEntity<Void> changeCategory(@RequestBody CategoryRequest request) {
     checkCategoryDto(request.categoryDto());

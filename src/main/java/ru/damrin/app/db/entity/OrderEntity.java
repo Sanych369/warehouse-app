@@ -11,21 +11,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import ru.damrin.app.common.exception.WarehouseAppException;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
+/**
+ * JPA сущность заказов.
+ */
 @Entity
 @Getter
 @Setter
@@ -44,7 +48,7 @@ public class OrderEntity {
   @JoinColumn(name = "user_id")
   private UserEntity user;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "company_id")
   private CompanyEntity company;
 
@@ -57,8 +61,10 @@ public class OrderEntity {
   private LocalDate createdAt;
 
   @Builder.Default
-  @OneToMany(mappedBy = "order", fetch = FetchType.EAGER,
-      cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "order",
+      fetch = FetchType.EAGER,
+      cascade = CascadeType.ALL,
+      orphanRemoval = true)
   private Set<OrdersGoodsEntity> ordersGoods = new HashSet<>();
 
   public void addOrdersGoods(OrdersGoodsEntity ordersGoods) {
@@ -75,8 +81,30 @@ public class OrderEntity {
         .findFirst()
         .orElseThrow(() -> new WarehouseAppException(
             String.format("Позиция %s не найдена в заказе. Проверьте наличие позиции", goodName)));
-      order.setOrder(null);
-      this.ordersGoods.remove(order);
-      totalAmount -= order.getSum();
+    order.setOrder(null);
+    this.ordersGoods.remove(order);
+    totalAmount -= order.getSum();
+  }
+
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass = o instanceof HibernateProxy proxy
+        ? proxy.getHibernateLazyInitializer().getPersistentClass()
+        : o.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy
+        ? proxy.getHibernateLazyInitializer().getPersistentClass()
+        : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    OrderEntity that = (OrderEntity) o;
+    return getId() != null && Objects.equals(getId(), that.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy proxy
+        ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
   }
 }

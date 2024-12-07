@@ -6,18 +6,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import ru.damrin.app.db.repository.OrdersRepository;
 import ru.damrin.app.db.repository.StoreRepository;
-import ru.damrin.app.mapper.StoreMapper;
 import ru.damrin.app.service.ReportGeneratorService;
 
 import java.time.LocalDate;
 
+/**
+ * Контроллер для получения отчётов.
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/reports")
 public class ReportController {
 
-  private final StoreMapper storeMapper;
-  private final   StoreRepository storeRepository;
+  private final StoreRepository storeRepository;
   private final OrdersRepository ordersRepository;
   private final ReportGeneratorService reportGeneratorService;
 
@@ -42,8 +43,7 @@ public class ReportController {
   @GetMapping("/store")
   public byte[] getStoreReport(LocalDate from, LocalDate to) {
 
-    var storeSet = storeMapper.toDto(storeRepository.findAllByOrderByCreatedAtDesc());
-    return reportGeneratorService.generateStoreReport(storeSet, String.format(STORE_REPORT_NAME, from, to));
+    final var stores = storeRepository.findAllByOrderByCreatedAtDesc();
+    return reportGeneratorService.generateStoreReport(stores, String.format(STORE_REPORT_NAME, from, to));
   }
-
 }

@@ -24,6 +24,9 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Objects;
 
+/**
+ * JPA сущность товаров.
+ */
 @Entity
 @Getter
 @Setter
@@ -54,6 +57,23 @@ public class GoodEntity {
   @Column(name = "balance", insertable = false)
   private Long balance;
 
+  @PrePersist
+  public void prePersist() {
+    this.setSalePrice(purchasePrice.add(
+            purchasePrice.divide(new BigDecimal(100), RoundingMode.HALF_UP)
+                .multiply(category.getMarkupPercentage()))
+        .setScale(0, RoundingMode.HALF_UP).longValue());
+  }
+
+  @PreRemove
+  private void preRemove() {
+    if (this.balance > 0) {
+      throw new WarehouseAppException(String.format(
+          "Невозможно удалить товар: %s. Текущий остаток: %d", this.name, this.balance)
+      );
+    }
+  }
+
   @Override
   public final boolean equals(Object o) {
     if (this == o) return true;
@@ -74,22 +94,5 @@ public class GoodEntity {
     return this instanceof HibernateProxy proxy
         ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode()
         : getClass().hashCode();
-  }
-
-  @PrePersist
-  public void prePersist() {
-    this.setSalePrice(purchasePrice.add(
-            purchasePrice.divide(new BigDecimal(100), RoundingMode.HALF_UP)
-                .multiply(category.getMarkupPercentage()))
-        .setScale(0, RoundingMode.HALF_UP).longValue());
-  }
-
-  @PreRemove
-  private void preRemove() {
-    if (this.balance > 0) {
-      throw new WarehouseAppException(String.format(
-          "Невозможно удалить товар: %s. Текущий остаток: %d", this.name, this.balance)
-      );
-    }
   }
 }

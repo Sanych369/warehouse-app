@@ -13,6 +13,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,8 +23,12 @@ import ru.damrin.app.common.enums.Position;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
+/**
+ * JPA сущность пользователя.
+ */
 @Entity
 @Getter
 @Setter
@@ -81,5 +86,27 @@ public class UserEntity implements UserDetails {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+
+  @Override
+  public final boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null) return false;
+    Class<?> oEffectiveClass = o instanceof HibernateProxy proxy
+        ? proxy.getHibernateLazyInitializer().getPersistentClass()
+        : o.getClass();
+    Class<?> thisEffectiveClass = this instanceof HibernateProxy proxy
+        ? proxy.getHibernateLazyInitializer().getPersistentClass()
+        : this.getClass();
+    if (thisEffectiveClass != oEffectiveClass) return false;
+    UserEntity user = (UserEntity) o;
+    return getId() != null && Objects.equals(getId(), user.getId());
+  }
+
+  @Override
+  public final int hashCode() {
+    return this instanceof HibernateProxy proxy
+        ? proxy.getHibernateLazyInitializer().getPersistentClass().hashCode()
+        : getClass().hashCode();
   }
 }

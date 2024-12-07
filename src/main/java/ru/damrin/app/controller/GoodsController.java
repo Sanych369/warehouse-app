@@ -15,7 +15,11 @@ import ru.damrin.app.model.good.GoodDto;
 import ru.damrin.app.service.GoodService;
 
 import java.math.BigDecimal;
+import java.util.List;
 
+/**
+ * Контроллер для управления товарами.
+ */
 @Controller
 @RequestMapping("/goods")
 @RequiredArgsConstructor
@@ -36,6 +40,22 @@ public class GoodsController {
 
     Page<GoodDto> goods = goodService.getGoods(name, category, purchasePrice, salePrice, balance, sort, page, size);
     return ResponseEntity.ok(goods);
+  }
+
+  @GetMapping("/goods-for-order")
+  public ResponseEntity<Page<GoodDto>> getGoodsForOrder(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(required = false) String name,
+      @RequestParam(required = false) Long categoryId
+  ) {
+    Page<GoodDto> goods = goodService.getGoodsForOrder(name, categoryId, page, size);
+    return ResponseEntity.ok(goods);
+  }
+
+  @GetMapping("/list")
+  public List<GoodDto> getAllGoods() {
+    return goodService.getAllGoods();
   }
 
   @PostMapping("/add")

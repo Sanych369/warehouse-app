@@ -1,7 +1,7 @@
 package ru.damrin.app.model;
 
+/**
+ * DTO получения информации о пользователе.
+ */
 public record UserDto(Long id, String name, String surname, String position, String email, String password) {
-  public UserDto(Long id, String name, String surname, String position, String email) {
-    this(id, name, surname, position, email, "***hidden***");
-  }
 }
