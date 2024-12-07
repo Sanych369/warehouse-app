@@ -85,8 +85,8 @@ public class OrderController {
   }
 
   @PostMapping("/delete-good")
-  public ResponseEntity<Void> deleteGood(@RequestParam Long ordersGoodsId, @RequestParam Long orderId) {
-    ordersGoodsService.deleteOrdersGoodsByOrderId(ordersGoodsId, orderId);
+  public ResponseEntity<Void> deleteGood(@RequestParam Long ordersGoodsId) {
+    ordersGoodsService.deleteOrdersGoodsByOrderId(ordersGoodsId);
     return ResponseEntity.status(OK).build();
   }
 }

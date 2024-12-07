@@ -75,12 +75,11 @@ public class OrderEntity {
         .reduce(0L, Long::sum);
   }
 
-  public void removeOrdersGoodsByName(String goodName) {
+  public void removeOrdersGoodsById(Long ordersGoodId) {
     var order = ordersGoods.stream()
-        .filter(ordersGoodsEntity -> ordersGoodsEntity.getGoodName().equals(goodName))
+        .filter(ordersGoodsEntity -> ordersGoodsEntity.getId().equals(ordersGoodId))
         .findFirst()
-        .orElseThrow(() -> new WarehouseAppException(
-            String.format("Позиция %s не найдена в заказе. Проверьте наличие позиции", goodName)));
+        .orElseThrow(() -> new WarehouseAppException("Позиция не найдена в заказе. Проверьте наличие позиции"));
     order.setOrder(null);
     this.ordersGoods.remove(order);
     totalAmount -= order.getSum();
