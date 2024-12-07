@@ -19,27 +19,15 @@ import java.util.List;
 
 import static java.util.Objects.isNull;
 
+/**
+ * Контроллер для управления контрагентами.
+ */
 @Controller
 @RequestMapping("/companies")
 @RequiredArgsConstructor
 public class CompanyController {
 
   private final CompanyService companyService;
-
-  @GetMapping("/list")
-  public ResponseEntity<List<CompanyDto>> getAllCompanies() {
-    return ResponseEntity.ok(companyService.getAllCompanies());
-  }
-
-  @GetMapping("/list/active")
-  public ResponseEntity<List<CompanyDto>> getAllActiveCompanies() {
-    return ResponseEntity.ok(companyService.getAllActiveCompanies());
-  }
-
-  @GetMapping("/list/inactive")
-  public ResponseEntity<List<CompanyDto>> getAllInactiveCompanies() {
-    return ResponseEntity.ok(companyService.getAllInactiveCompanies());
-  }
 
   @GetMapping("/page")
   public ResponseEntity<Page<CompanyDto>> getCompaniesPage(
@@ -54,6 +42,21 @@ public class CompanyController {
 
     Page<CompanyDto> companies = companyService.getCompaniesPage(name, address, phone, email, isActive, sort, page, size);
     return ResponseEntity.ok(companies);
+  }
+
+  @GetMapping("/list")
+  public ResponseEntity<List<CompanyDto>> getAllCompanies() {
+    return ResponseEntity.ok(companyService.getAllCompanies());
+  }
+
+  @GetMapping("/list/active")
+  public ResponseEntity<List<CompanyDto>> getAllActiveCompanies() {
+    return ResponseEntity.ok(companyService.getAllActiveCompanies());
+  }
+
+  @GetMapping("/list/inactive")
+  public ResponseEntity<List<CompanyDto>> getAllInactiveCompanies() {
+    return ResponseEntity.ok(companyService.getAllInactiveCompanies());
   }
 
   @PostMapping("/add")

@@ -1,6 +1,7 @@
 package ru.damrin.app.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,11 +16,15 @@ import ru.damrin.app.model.order.OrderDto;
 import ru.damrin.app.service.OrderService;
 import ru.damrin.app.service.OrdersGoodsService;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+/**
+ * Контроллер для управлением заказами.
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/orders")
@@ -27,6 +32,22 @@ public class OrderController {
 
   private final OrderService service;
   private final OrdersGoodsService ordersGoodsService;
+
+  @GetMapping("/page")
+  public ResponseEntity<Page<OrderDto>> getOrdersPage(
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size,
+      @RequestParam(value = "user", required = false) String user,
+      @RequestParam(value = "company", required = false) String company,
+      @RequestParam(value = "totalAmount", required = false) Long totalAmount,
+      @RequestParam(value = "dateFrom", required = false) LocalDate dateFrom,
+      @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
+      @RequestParam(value = "sort", required = false) String sort) {
+
+    Page<OrderDto> orders = service.getPageOrders(user, company, totalAmount, dateFrom, dateTo, page, size, sort);
+
+    return ResponseEntity.ok(orders);
+  }
 
   @GetMapping("/my")
   public ResponseEntity<List<OrderDto>> getMyOrder() {
@@ -52,9 +73,9 @@ public class OrderController {
     return ResponseEntity.status(OK).build();
   }
 
-  @PostMapping("/add-good")
-  public ResponseEntity<Void> addGoodsToOrder(@RequestBody AddGoodToOrderDto addGoodToOrderDto) {
-    ordersGoodsService.addGoodToOrdersGoods(addGoodToOrderDto.orderId(), addGoodToOrderDto.goodName(), addGoodToOrderDto.quantity());
+  @PostMapping("/add-goods")
+  public ResponseEntity<Void> addGoodsToOrder(@RequestBody List<AddGoodToOrderDto> addGoodToOrderList) {
+    ordersGoodsService.addGoodToOrdersGoods(addGoodToOrderList);
     return ResponseEntity.status(CREATED).build();
   }
 

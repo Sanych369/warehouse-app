@@ -10,6 +10,9 @@ import ru.damrin.app.db.entity.UserEntity;
 
 import java.util.Optional;
 
+/**
+ * Слой репозитория для запросов пользователей.
+ */
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
 

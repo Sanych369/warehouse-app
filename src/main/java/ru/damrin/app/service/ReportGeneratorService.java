@@ -1,15 +1,14 @@
 package ru.damrin.app.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.xssf.usermodel.XSSFCreationHelper;
 import org.apache.poi.xssf.usermodel.XSSFFont;
@@ -17,247 +16,320 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.entity.OrderEntity;
-import ru.damrin.app.model.StoreDto;
+import ru.damrin.app.db.entity.StoreEntity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+
+import static org.apache.poi.ss.usermodel.CellType.NUMERIC;
 
 @Slf4j
 @Service
 public class ReportGeneratorService {
-  //TODO: "Отчёт %s-%s"
+
+  private static final String MANAGER = "Менеджер";
+  private static final String CUSTOMER = "Заказчик";
+  private static final String CONTENT_OF_ORDER = "Содержание заказа";
+  private static final String ORDER_SUM_TOTAL = "Сумма заказа";
+  private static final String RESPONSIBLE_PERSON = "Ответственный";
+  private static final String GOOD_NAME = "Наименование товара";
+  private static final String PURCHASE_PRICE = "Закупочная цена";
+  private static final String ARRIVAL_TOTAL = "Приход количество (шт.)";
+  private static final String CONSUMPTION_TOTAL = "Списание количество (шт.)";
+  private static final String REASON = "Обоснование";
+  private static final String ARRIVAL_TOTAL_SUM = "Сумма прихода";
+  private static final String CONSUMPTION_TOTAL_SUM = "Сумма списания";
+
   public byte[] generateSaleReport(Set<OrderEntity> orders, String sheetName) {
-    XSSFWorkbook workbook = new XSSFWorkbook();
+    var workbook = new XSSFWorkbook();
+    var sheet = workbook.createSheet(String.format(sheetName));
 
-    Sheet sheet = workbook.createSheet(String.format(sheetName));
+    var headerStyle = headerCellStyle(workbook);
+    var header = sheet.createRow(0);
 
-    Row header = sheet.createRow(0);
-    CellStyle headerStyle = workbook.createCellStyle();
-    headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
-    headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-    headerStyle.setAlignment(HorizontalAlignment.CENTER);
-    headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-    header.setRowStyle(headerStyle);
-
-    XSSFFont font = workbook.createFont();
-    font.setFontName("ComicSansMs");
-    font.setBold(true);
-    headerStyle.setFont(font);
-
-    Cell headerCell = header.createCell(0);
-    headerCell.setCellValue("Дата");
-    headerCell.setCellStyle(headerStyle);
+    var headerCell = headerCellDate(header, headerStyle);
 
     headerCell = header.createCell(1);
-    headerCell.setCellValue("Менеджер");
+    headerCell.setCellValue(MANAGER);
     headerCell.setCellStyle(headerStyle);
 
     headerCell = header.createCell(2);
-    headerCell.setCellValue("Заказчик");
+    headerCell.setCellValue(CUSTOMER);
     headerCell.setCellStyle(headerStyle);
 
     headerCell = header.createCell(3);
-    headerCell.setCellValue("Заказ");
+    headerCell.setCellValue(CONTENT_OF_ORDER);
     headerCell.setCellStyle(headerStyle);
 
     headerCell = header.createCell(4);
-    headerCell.setCellValue("Сумма");
+    headerCell.setCellValue(ORDER_SUM_TOTAL);
     headerCell.setCellStyle(headerStyle);
 
+    var style = cellStyle(workbook);
+    var dateStyle = cellStyle(workbook);
+    var creationHelper = new XSSFCreationHelper(workbook);
+    var dateFormat = "yyyy-mm-dd";
+    dateStyle.setDataFormat(creationHelper.createDataFormat().getFormat(dateFormat));
+
     int rowNum = 1;
+    int userNameMaxWidth = MANAGER.length();
+    int companyNameMaxWidth = CUSTOMER.length();
+    int orderGoodsMaxWidth = CONTENT_OF_ORDER.length();
+    int totalAmountMaxWidth = ORDER_SUM_TOTAL.length();
+
     for (OrderEntity order : orders) {
 
       int cellNum = 0;
-
       Row row = sheet.createRow(rowNum++);
-      CellStyle style = workbook.createCellStyle();
-      style.setWrapText(false);
-      style.setAlignment(HorizontalAlignment.CENTER);
-      style.setVerticalAlignment(VerticalAlignment.CENTER);
-
-      CreationHelper creationHelper = new XSSFCreationHelper(workbook);
-      style.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-mm-dd"));
-
-      row.setRowStyle(style);
 
       Cell cell = row.createCell(cellNum++);
       cell.setCellValue(order.getCreatedAt());
-      cell.setCellStyle(style);
+      cell.setCellStyle(dateStyle);
 
       cell = row.createCell(cellNum++);
-      cell.setCellValue(order.getUser().getName() + " " + order.getUser().getSurname());
+      var userName = order.getUser().getName() + " " + order.getUser().getSurname();
+      cell.setCellValue(userName);
       cell.setCellStyle(style);
+      userNameMaxWidth = Math.max(userName.length(), userNameMaxWidth);
 
       cell = row.createCell(cellNum++);
-      cell.setCellValue(order.getCompany().getName());
+      var companyName = order.getCompany().getName();
+      cell.setCellValue(companyName);
       cell.setCellStyle(style);
+      companyNameMaxWidth = Math.max(companyName.length(), companyNameMaxWidth);
 
       cell = row.createCell(cellNum++);
-      cell.setCellValue(order.getOrdersGoods().stream()
-          .flatMap(x -> Stream.of(x.getGoodName() + " " + x.getQuantity()))
-          .collect(Collectors.joining("\n")));
+      var joiningGoods = new StringBuilder();
+      for (var goods : order.getOrdersGoods()) {
+        String goodNameQuantity = goods.getGoodName() + " " + goods.getQuantity();
+        orderGoodsMaxWidth = Math.max(goodNameQuantity.length(), orderGoodsMaxWidth);
+        joiningGoods.append(goodNameQuantity).append("\n");
+      }
+      cell.setCellValue(joiningGoods.toString());
       cell.setCellStyle(style);
 
-      cell = row.createCell(cellNum);
-      cell.setCellValue(order.getTotalAmount());
+      cell = row.createCell(cellNum, NUMERIC);
+      var totalAmountString = order.getTotalAmount().toString();
+      cell.setCellValue(totalAmountString);
       cell.setCellStyle(style);
+      totalAmountMaxWidth = Math.max(totalAmountString.length(), totalAmountMaxWidth);
 
       row.setHeightInPoints(order.getOrdersGoods().size() * sheet.getDefaultRowHeightInPoints());
-      row.setRowStyle(style); //TODO: проверить стайлы
     }
 
-    sheet.autoSizeColumn(0);
-    sheet.autoSizeColumn(1);
-    sheet.autoSizeColumn(2);
-    sheet.autoSizeColumn(3);
-    sheet.autoSizeColumn(4);
-    sheet.autoSizeColumn(5);
+    sheet.setColumnWidth(0, (dateFormat.length() + 2) * 256);
+    sheet.setColumnWidth(1, (userNameMaxWidth + 2) * 256);
+    sheet.setColumnWidth(2, (companyNameMaxWidth + 2) * 256);
+    sheet.setColumnWidth(3, (orderGoodsMaxWidth + 2) * 256);
+    sheet.setColumnWidth(4, (totalAmountMaxWidth + 2) * 256);
 
-    try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      workbook.write(outputStream);
-      workbook.close();
-      return outputStream.toByteArray();
-    } catch (IOException e) {
-      log.error("Error while generating report. Cause: {}", e.getMessage());
-      throw new WarehouseAppException(String.format("Ошибка в генерации отчёта %s", sheetName));
-    }
+    return getBytesReport(sheetName, workbook);
   }
 
-  public byte[] generateStoreReport(List<StoreDto> storeDtoSet, String sheetName) {
-    XSSFWorkbook workbook = new XSSFWorkbook();
+  public byte[] generateStoreReport(List<StoreEntity> storeEntities, String sheetName) {
+    var workbook = new XSSFWorkbook();
 
-    Sheet sheet = workbook.createSheet(String.format(sheetName));
+    var sheet = workbook.createSheet(String.format(sheetName));
+    sheet.autoSizeColumn(0);
 
-    Row header = sheet.createRow(0);
-    CellStyle headerStyle = workbook.createCellStyle();
+    var headerStyle = headerCellStyle(workbook);
+    var header = sheet.createRow(0);
+
+    var headerCell = headerCellDate(header, headerStyle);
+
+    headerCell = header.createCell(1);
+    headerCell.setCellValue(RESPONSIBLE_PERSON);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(2);
+    headerCell.setCellValue(GOOD_NAME);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(3);
+    headerCell.setCellValue(PURCHASE_PRICE);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(4);
+    headerCell.setCellValue(ARRIVAL_TOTAL);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(5);
+    headerCell.setCellValue(CONSUMPTION_TOTAL);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(6);
+    headerCell.setCellValue(REASON);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(7);
+    headerCell.setCellValue(ARRIVAL_TOTAL_SUM);
+    headerCell.setCellStyle(headerStyle);
+
+    headerCell = header.createCell(8);
+    headerCell.setCellValue(CONSUMPTION_TOTAL_SUM);
+    headerCell.setCellStyle(headerStyle);
+
+    var style = cellStyle(workbook);
+    var dateStyle = cellStyle(workbook);
+    CreationHelper creationHelper = new XSSFCreationHelper(workbook);
+    final var dateTimeFormat = "yyyy-mm-dd HH:mm:ss";
+    dateStyle.setDataFormat(creationHelper.createDataFormat().getFormat(dateTimeFormat));
+
+    int rowNum = 1;
+    int responsiblePersonMaxWidth = RESPONSIBLE_PERSON.length();
+    int goodNameMaxWidth = GOOD_NAME.length();
+    int purchasePriceMaxWidth = PURCHASE_PRICE.length();
+    int arrivedTotalMaxWidth = ARRIVAL_TOTAL.length();
+    int consumptionTotalMaxWidth = CONSUMPTION_TOTAL.length();
+    int reasonMaxWidth = REASON.length();
+    int arrivedTotalSum = ARRIVAL_TOTAL_SUM.length();
+    int consumptionTotalSum = CONSUMPTION_TOTAL_SUM.length();
+
+    BigDecimal arrivalSum = BigDecimal.ZERO;
+    BigDecimal consumptionSum = BigDecimal.ZERO;
+
+    for (var store : storeEntities) {
+
+      var row = sheet.createRow(rowNum++);
+      int cellNum = 0;
+
+      var cell = row.createCell(cellNum++);
+      cell.setCellValue(store.getCreatedAt());
+      cell.setCellStyle(dateStyle);
+
+      cell = row.createCell(cellNum++);
+      var responsiblePerson = store.getResponsiblePerson();
+      cell.setCellValue(responsiblePerson);
+      responsiblePersonMaxWidth = Math.max(responsiblePerson.length(), responsiblePersonMaxWidth);
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum++);
+      var goodName = store.getGood().getName();
+      cell.setCellValue(goodName);
+      goodNameMaxWidth = Math.max(goodName.length(), goodNameMaxWidth);
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum++, NUMERIC);
+      var purchasePrice = store.getPurchasePrice().toString();
+      cell.setCellValue(purchasePrice);
+      purchasePriceMaxWidth = Math.max(purchasePrice.length(), purchasePriceMaxWidth);
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum++, NUMERIC);
+      var arrived = store.getArrivedTotal().toString();
+      cell.setCellValue(arrived);
+      arrivedTotalMaxWidth = Math.max(arrived.length(), arrivedTotalMaxWidth);
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum++, NUMERIC);
+      var consumption = store.getConsumptionTotal().toString();
+      cell.setCellValue(consumption);
+      consumptionTotalMaxWidth = Math.max(consumption.length(), consumptionTotalMaxWidth);
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum++);
+      var reason = store.getReason();
+      cell.setCellValue(reason);
+      reasonMaxWidth = Math.max(reason.length(), reasonMaxWidth);
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum++, NUMERIC);
+      var arrivalTotal = store.getPurchasePrice()
+          .multiply(BigDecimal.valueOf(store.getArrivedTotal()));
+      arrivalSum = arrivalSum.add(arrivalTotal);
+      cell.setCellValue(arrivalTotal.toString());
+      cell.setCellStyle(style);
+
+      cell = row.createCell(cellNum, NUMERIC);
+      var consumptionTotal = store.getPurchasePrice()
+          .multiply(BigDecimal.valueOf(store.getConsumptionTotal()));
+      consumptionSum = consumptionSum.add(consumptionTotal);
+      cell.setCellValue(consumptionTotal.toString());
+      cell.setCellStyle(style);
+    }
+
+    var row = sheet.createRow(rowNum);
+
+    Cell cell = row.createCell(0);
+    cell.setCellValue("Итого");
+    cell.setCellStyle(style);
+
+    cell = row.createCell(7, NUMERIC);
+    var totalArrival = arrivalSum.toString();
+    cell.setCellValue(totalArrival);
+    arrivedTotalSum = Math.max(totalArrival.length(), arrivedTotalSum);
+    cell.setCellStyle(style);
+
+    cell = row.createCell(8, NUMERIC);
+    var totalCons = consumptionSum.toString();
+    consumptionTotalSum = Math.max(totalCons.length(), consumptionTotalSum);
+    cell.setCellValue(totalCons);
+    cell.setCellStyle(style);
+
+    sheet.setColumnWidth(0, (dateTimeFormat.length() + 2) * 256);
+    sheet.setColumnWidth(1, (responsiblePersonMaxWidth + 2) * 256);
+    sheet.setColumnWidth(2, (goodNameMaxWidth + 2) * 256);
+    sheet.setColumnWidth(3, (purchasePriceMaxWidth + 2) * 256);
+    sheet.setColumnWidth(4, (arrivedTotalMaxWidth + 2) * 256);
+    sheet.setColumnWidth(5, (consumptionTotalMaxWidth + 2) * 256);
+    sheet.setColumnWidth(6, (reasonMaxWidth + 2) * 256);
+    sheet.setColumnWidth(7, (arrivedTotalSum + 2) * 256);
+    sheet.setColumnWidth(8, (consumptionTotalSum + 2) * 256);
+
+    return getBytesReport(sheetName, workbook);
+  }
+
+  private CellStyle headerCellStyle(XSSFWorkbook workbook) {
+    var headerStyle = workbook.createCellStyle();
+
     headerStyle.setFillForegroundColor(IndexedColors.LIGHT_BLUE.getIndex());
     headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
     headerStyle.setAlignment(HorizontalAlignment.CENTER);
     headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-
-    header.setRowStyle(headerStyle);
-
     XSSFFont font = workbook.createFont();
     font.setFontName("ComicSansMs");
     font.setBold(true);
     headerStyle.setFont(font);
 
-    Cell headerCell = header.createCell(0);
+    return headerStyle;
+  }
+
+  private Cell headerCellDate(Row header, CellStyle headerStyle) {
+    var headerCell = header.createCell(0);
     headerCell.setCellValue("Дата");
     headerCell.setCellStyle(headerStyle);
+    return headerCell;
+  }
 
-    headerCell = header.createCell(1);
-    headerCell.setCellValue("Ответственный");
-    headerCell.setCellStyle(headerStyle);
+  private CellStyle cellStyle(XSSFWorkbook workbook) {
+    var style = workbook.createCellStyle();
 
-    headerCell = header.createCell(2);
-    headerCell.setCellValue("Наименование товара");
-    headerCell.setCellStyle(headerStyle);
+    style.setWrapText(false);
+    style.setAlignment(HorizontalAlignment.CENTER);
+    style.setVerticalAlignment(VerticalAlignment.CENTER);
+    style.setLeftBorderColor(IndexedColors.BLACK.index);
+    style.setBorderRight(BorderStyle.THIN);
+    style.setTopBorderColor(IndexedColors.BLACK.index);
+    style.setBorderTop(BorderStyle.THIN);
+    style.setRightBorderColor(IndexedColors.BLACK.index);
+    style.setBorderLeft(BorderStyle.THIN);
+    style.setBottomBorderColor(IndexedColors.BLACK.index);
+    style.setBorderBottom(BorderStyle.THIN);
 
-    headerCell = header.createCell(3);
-    headerCell.setCellValue("Закупочная цена");
-    headerCell.setCellStyle(headerStyle);
+    return style;
+  }
 
-    headerCell = header.createCell(4);
-    headerCell.setCellValue("Приход количество (шт.)");
-    headerCell.setCellStyle(headerStyle);
-
-    headerCell = header.createCell(5);
-    headerCell.setCellValue("Списание количество (шт.)");
-    headerCell.setCellStyle(headerStyle);
-
-    headerCell = header.createCell(6);
-    headerCell.setCellValue("Обоснование");
-    headerCell.setCellStyle(headerStyle);
-
-    headerCell = header.createCell(7);
-    headerCell.setCellValue("Сумма прихода");
-    headerCell.setCellStyle(headerStyle);
-
-    headerCell = header.createCell(8);
-    headerCell.setCellValue("Сумма списания");
-    headerCell.setCellStyle(headerStyle);
-
-    int rowNum = 1;
-    for (StoreDto storeDto : storeDtoSet) {
-
-      int cellNum = 0;
-
-      Row row = sheet.createRow(rowNum++);
-      CellStyle style = workbook.createCellStyle();
-      style.setWrapText(false);
-      style.setAlignment(HorizontalAlignment.CENTER);
-      style.setVerticalAlignment(VerticalAlignment.CENTER);
-      CreationHelper creationHelper = new XSSFCreationHelper(workbook);
-      style.setDataFormat(creationHelper.createDataFormat().getFormat("yyyy-mm-dd HH:mm:ss"));
-
-      row.setRowStyle(style);
-
-      Cell cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.createdAt());
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.responsiblePerson());
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.goodName());
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue(String.valueOf(storeDto.purchasePrice()));
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.arrivedTotal());
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.consumptionTotal());
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue(storeDto.reason());
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum++);
-      cell.setCellValue((RichTextString) storeDto.purchasePrice() //TODO: багуется - форматирует в дату
-          .multiply(BigDecimal.valueOf(storeDto.arrivedTotal())));
-      cell.setCellStyle(style);
-
-      cell = row.createCell(cellNum);
-      cell.setCellValue(storeDto.purchasePrice()
-          .multiply(BigDecimal.valueOf(storeDto.consumptionTotal())).floatValue());
-      cell.setCellStyle(style);
-
-    }
-
-    sheet.autoSizeColumn(0);
-    sheet.autoSizeColumn(1);
-    sheet.autoSizeColumn(2);
-    sheet.autoSizeColumn(3);
-    sheet.autoSizeColumn(4);
-    sheet.autoSizeColumn(5);
-    sheet.autoSizeColumn(6);
-    sheet.autoSizeColumn(7);
-    sheet.autoSizeColumn(8);
-
-    try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+  private byte[] getBytesReport(String sheetName, XSSFWorkbook workbook) {
+    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       workbook.write(outputStream);
       workbook.close();
       return outputStream.toByteArray();
     } catch (IOException e) {
       log.error("Error while generating report. Cause: {}", e.getMessage());
-      throw new WarehouseAppException(String.format("Ошибка в генерации отчёта %s", sheetName));
+      throw new WarehouseAppException(String.format("Не удалось сгенерировать отчёт %s", sheetName));
     }
   }
 }

@@ -10,8 +10,6 @@ import org.mapstruct.ReportingPolicy;
 import ru.damrin.app.db.entity.OrderEntity;
 import ru.damrin.app.model.order.OrderDto;
 
-import java.util.Set;
-
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING,
     uses = {CompanyMapper.class, GoodMapper.class}, nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface OrderMapper {

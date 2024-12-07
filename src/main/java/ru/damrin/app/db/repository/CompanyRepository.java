@@ -10,6 +10,9 @@ import ru.damrin.app.db.entity.CompanyEntity;
 
 import java.util.List;
 
+/**
+ * Слой репозитория для запросов компаний.
+ */
 @Repository
 public interface CompanyRepository extends JpaRepository<CompanyEntity, Long> {
 

@@ -6,42 +6,45 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+/**
+ * Контроллер для обработки запросов панели Администратора.
+ */
 @Controller
 @RequestMapping("/admin")
 @RequiredArgsConstructor
 public class AdminController {
 
-    @GetMapping
-    public String showDashboard() {
-        return "admin-dashboard";  // Панель администратора
-    }
+  @GetMapping("/orders")
+  public String showOrdersPage() {
+    return "orders";
+  }
 
-    @GetMapping("/users")
-    public String showUsersPage(Model model) {
-        // Получаем список пользователей и передаем в модель
-        return "users";  // Переход к странице списка пользователей
-    }
-//    @GetMapping("/goods")
-//    public String showGoodsPage(Model model) {
-//        // Получаем список пользователей и передаем в модель
-//        return "goods";  // Переход к странице списка пользователей
-//    }
+  @GetMapping
+  public String showDashboard() {
+    return "admin-dashboard";  // Панель администратора
+  }
 
-    @GetMapping("/goods")
-    public String showGoodsPage(Model model) {
-        // Получаем список пользователей и передаем в модель
-        return "goods";  // Переход к странице списка пользователей
-    }
+  @GetMapping("/users")
+  public String showUsersPage(Model model) {
+    // Получаем список пользователей и передаем в модель
+    return "users";  // Переход к странице списка пользователей
+  }
 
-    @GetMapping("/companies")
-    public String showCompaniesPage(Model model) {
-        // Получаем список пользователей и передаем в модель
-        return "companies";  // Переход к странице списка пользователей
-    }
+  @GetMapping("/goods")
+  public String showGoodsPage(Model model) {
+    // Получаем список пользователей и передаем в модель
+    return "goods";  // Переход к странице списка пользователей
+  }
 
-    @GetMapping("/categories")
-    public String showCategoryPage(Model model) {
-        // Получаем список пользователей и передаем в модель
-        return "categories";  // Переход к странице списка пользователей
-    }
+  @GetMapping("/companies")
+  public String showCompaniesPage(Model model) {
+    // Получаем список пользователей и передаем в модель
+    return "companies";  // Переход к странице списка пользователей
+  }
+
+  @GetMapping("/categories")
+  public String showCategoryPage(Model model) {
+    // Получаем список пользователей и передаем в модель
+    return "categories";  // Переход к странице списка пользователей
+  }
 }

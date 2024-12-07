@@ -6,6 +6,9 @@ import ru.damrin.app.db.entity.StoreEntity;
 
 import java.util.List;
 
+/**
+ * Слой репозитория для запросов истории складских операций.
+ */
 @Repository
 public interface StoreRepository extends JpaRepository<StoreEntity, Long> {
 

@@ -4,12 +4,12 @@ spring:
       - classpath:db/init
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/postgres
-    username: postgres
-    password: postgres
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/postgres}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
-      schema: damrin_app
+      schema: ${DB_SCHEMA_NAME:damrin_app}
   jpa:
     open-in-view: false
     hibernate:

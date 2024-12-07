@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import ru.damrin.app.model.LoginRequest;
 import ru.damrin.app.service.LoginService;
 
+/**
+ * Контроллер для аутентификации пользователей.
+ */
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/login")

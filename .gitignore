@@ -1,6 +1,7 @@
 *.iml
 .idea
 .git
+/logs
 /target/
 amplicode.xml
 *.xlsx

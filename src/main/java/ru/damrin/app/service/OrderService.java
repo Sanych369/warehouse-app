@@ -3,6 +3,8 @@ package ru.damrin.app.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.entity.GoodEntity;
@@ -18,7 +20,7 @@ import ru.damrin.app.model.order.OrderDto;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,11 +28,25 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrderService {
 
+  private final SortService sortService;
   private final OrderMapper orderMapper;
   private final GoodRepository goodRepository;
   private final UserRepository userRepository;
   private final OrdersRepository ordersRepository;
   private final CompanyRepository companyRepository;
+
+  public Page<OrderDto> getPageOrders(String user,
+                                      String company,
+                                      Long totalAmount,
+                                      LocalDate dateFrom, LocalDate dateTo,
+                                      int page,
+                                      int size,
+                                      String sort) {
+
+    final var pageable = PageRequest.of(page, size, sortService.getSortOrderForOrders(sort));
+    return ordersRepository.findAllWithFilters(user, company, totalAmount, dateFrom, dateTo, pageable)
+        .map(orderMapper::toDto);
+  }
 
   public List<OrderDto> findAll() {
     return ordersRepository.findAllByOrderByCreatedAtDesc().stream()
@@ -44,30 +60,26 @@ public class OrderService {
         .toList();
   }
 
-  public List<OrderDto> findCurrentOrdersByUserId(long userId) {
-    return ordersRepository.findAllByUserIdAndCreatedAt(userId, LocalDate.now()).stream()
-        .map(orderMapper::toDto)
-        .toList();
-  }
-
   public void createOrder(CreateOrderDto orderDto) {
-    var company = companyRepository.findById(orderDto.companyId())
+    log.info("Create order: {}", orderDto.goodOrders());
+    final var company = companyRepository.findById(orderDto.companyId())
         .orElseThrow(() -> new WarehouseAppException("Компания не найдена."));
+
     if (!company.getIsActive()) {
       throw new WarehouseAppException("Компания неактивна. Заказы оформляются только на активные компании");
     }
-    var invalidQuantityGoods = orderDto.goodOrders().stream()
-        .map(goodOrderDto -> {
-          var good = goodRepository.findById(goodOrderDto.goodId())
-              .orElseThrow(() -> new WarehouseAppException(
-                  String.format("Товар с идентификатором %s не найден", goodOrderDto.goodId())));
-          if (good.getBalance().compareTo(goodOrderDto.quantity()) < 0) {
-            return good;
-          }
-          return null;
-        })
-        .filter(Objects::nonNull)
-        .map(good -> ((GoodEntity) good).getName())
+
+    final var requestedGoods = orderDto.goodOrders().stream()
+        .map(orderGoodDto -> goodRepository.findById(orderGoodDto.goodId()))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(Collectors.toSet());
+
+    log.info("Start validating goods by quantity");
+
+    final var invalidQuantityGoods = requestedGoods.stream()
+        .filter(good -> good.getBalance() <= 0)
+        .map(GoodEntity::getName)
         .collect(Collectors.joining(", "));
 
     if (StringUtils.isNotEmpty(invalidQuantityGoods)) {
@@ -83,10 +95,13 @@ public class OrderService {
         .user(user)
         .company(companyRepository.getReferenceById(orderDto.companyId()))
         .build();
-    orderDto.goodOrders().forEach(goodOrderDto -> {
 
-      final var good = goodRepository.findById(goodOrderDto.goodId())
-          .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
+    orderDto.goodOrders().forEach(goodOrderDto -> {
+      final var good = requestedGoods.stream()
+          .filter(requestGood -> requestGood.getId().equals(goodOrderDto.goodId()))
+          .findFirst()
+          .orElseThrow(() -> new WarehouseAppException(
+              String.format("Товар с идентификатором %s не найден в базе. Невозможно создать заказ.", goodOrderDto.goodId())));
 
       order.addOrdersGoods(
           OrdersGoodsEntity.builder()
@@ -97,5 +112,6 @@ public class OrderService {
     });
 
     ordersRepository.save(order);
+    log.info("Order created: {}", order.getId());
   }
 }

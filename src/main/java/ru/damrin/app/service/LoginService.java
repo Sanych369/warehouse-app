@@ -4,7 +4,6 @@ package ru.damrin.app.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.model.LoginRequest;
 
@@ -12,18 +11,18 @@ import ru.damrin.app.model.LoginRequest;
 @RequiredArgsConstructor
 public class LoginService {
 
-    private final AuthenticationManager authenticationManager;
+  private final AuthenticationManager authenticationManager;
 
-    public String authenticate(LoginRequest loginRequest) {
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
+  public String authenticate(LoginRequest loginRequest) {
+    final var authenticationToken =
+        new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
 
-        Authentication authentication = authenticationManager.authenticate(authenticationToken);
+    final var authentication = authenticationManager.authenticate(authenticationToken);
 
-        if (authentication.isAuthenticated()) {
-            return "Authenticated successfully!";
-        } else {
-            return "Authentication failed.";
-        }
+    if (authentication.isAuthenticated()) {
+      return "Authenticated successfully!";
     }
+
+    return "Authentication failed.";
+  }
 }

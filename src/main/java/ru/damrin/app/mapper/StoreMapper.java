@@ -1,8 +1,8 @@
 package ru.damrin.app.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import ru.damrin.app.db.entity.StoreEntity;
@@ -15,9 +15,8 @@ import java.util.List;
 public interface StoreMapper {
   StoreEntity toEntity(StoreDto storeDto);
 
+  @Mapping(target = "goodName", source = "good.name")
   StoreDto toDto(StoreEntity storeEntity);
 
   List<StoreDto> toDto(List<StoreEntity> storeEntity);
-
-  StoreEntity partialUpdate(StoreDto storeDto, @MappingTarget StoreEntity storeEntity);
 }
