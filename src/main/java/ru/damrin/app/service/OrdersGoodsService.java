@@ -60,44 +60,50 @@ public class OrdersGoodsService {
     });
   }
 
-  //  OrdersGoodsDto
-  public void changeOrdersGoodsByOrderId(OrdersGoodsDto ordersGoodsDto) {
-    log.info("Changed order by good {} quantity {}", ordersGoodsDto.goodName(), ordersGoodsDto.quantity());
+  public void changeOrdersGoodsByOrderId(List<OrdersGoodsDto> ordersGoods) {
+    ordersGoods.forEach(ordersGoodsDto -> {
+      log.info("Changed order by good {} quantity {}", ordersGoodsDto.goodName(), ordersGoodsDto.quantity());
 
-    var orderGood = ordersGoodsRepository.findById(ordersGoodsDto.id())
-        .orElseThrow(() -> new WarehouseAppException("Данный товар не найден в заказе."));
+      var orderGood = ordersGoodsRepository.findById(ordersGoodsDto.id())
+          .orElseThrow(() -> new WarehouseAppException("Данный товар не найден в заказе."));
 
-    final var orderQuantity = orderGood.getQuantity();
+      final var newQuantity = ordersGoodsDto.quantity();
+      final var orderQuantity = orderGood.getQuantity();
 
-    if (orderQuantity <= 0) {
-      throw new WarehouseAppException("Новое количество не может быть меньше или равно нулю. Если нет необходимости в оформлении данной позиции - удалите");
-    }
+      if (orderQuantity <= 0) {
+        throw new WarehouseAppException("Новое количество не может быть меньше или равно нулю. Если нет необходимости в оформлении данной позиции - удалите");
+      }
 
-    if (ordersGoodsDto.quantity().equals(orderQuantity)) {
-      throw new WarehouseAppException("Новые данные идентичны существующему заказу");
-    }
+      if (newQuantity.equals(orderQuantity)) {
+        throw new WarehouseAppException("Новые данные идентичны существующему заказу");
+      }
 
-    var good = goodRepository.findByName(orderGood.getGoodName())
-        .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
+      var good = orderGood.getGood();
 
-    final var quantityDifference = ordersGoodsDto.quantity() - orderQuantity;
-    final var currentBalance = good.getBalance();
+      if (good == null) {
+        throw new WarehouseAppException("Товар не найден");
+      }
 
-    final var newBalance = currentBalance - quantityDifference;
+      final var quantityDifference = newQuantity - orderQuantity;
 
-    if (newBalance < 0) {
-      throw new WarehouseAppException(String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", currentBalance));
-    }
+      final var currentBalance = good.getBalance();
 
-    good.setBalance(newBalance);
-    orderGood.setGood(good);
+      final var newBalance = currentBalance - quantityDifference;
 
-    orderGood.setQuantity(ordersGoodsDto.quantity());
-    orderGood.setSum(ordersGoodsDto.quantity() * good.getSalePrice());
-    orderGood.getOrder().addOrdersGoods(orderGood);
+      if (newBalance < 0) {
+        throw new WarehouseAppException(String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", currentBalance));
+      }
 
-    ordersGoodsRepository.save(orderGood);
-    log.info("Order was changed successfully");
+      good.setBalance(newBalance);
+      orderGood.setGood(good);
+
+      orderGood.setQuantity(newQuantity);
+      orderGood.setSum(newQuantity * good.getSalePrice());
+      orderGood.getOrder().addOrdersGoods(orderGood);
+
+      ordersGoodsRepository.save(orderGood);
+      log.info("Order was changed successfully");
+    });
   }
 
   public void deleteOrdersGoodsByOrderId(Long ordersGoodsId, Long orderId) {

@@ -68,7 +68,7 @@ public class OrderController {
   }
 
   @PostMapping("/change")
-  public ResponseEntity<Void> changeOrder(@RequestBody OrdersGoodsDto orderDto) {
+  public ResponseEntity<Void> changeOrder(@RequestBody List<OrdersGoodsDto> orderDto) {
     ordersGoodsService.changeOrdersGoodsByOrderId(orderDto);
     return ResponseEntity.status(OK).build();
   }
