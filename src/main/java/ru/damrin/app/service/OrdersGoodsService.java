@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
+import ru.damrin.app.db.entity.GoodEntity;
 import ru.damrin.app.db.entity.OrdersGoodsEntity;
 import ru.damrin.app.db.repository.GoodRepository;
 import ru.damrin.app.db.repository.OrdersGoodsRepository;
@@ -68,33 +69,7 @@ public class OrdersGoodsService {
           .orElseThrow(() -> new WarehouseAppException("Данный товар не найден в заказе."));
 
       final var newQuantity = ordersGoodsDto.quantity();
-      final var orderQuantity = orderGood.getQuantity();
-
-      if (orderQuantity <= 0) {
-        throw new WarehouseAppException("Новое количество не может быть меньше или равно нулю. Если нет необходимости в оформлении данной позиции - удалите");
-      }
-
-      if (newQuantity.equals(orderQuantity)) {
-        throw new WarehouseAppException("Новые данные идентичны существующему заказу");
-      }
-
-      var good = orderGood.getGood();
-
-      if (good == null) {
-        throw new WarehouseAppException("Товар не найден");
-      }
-
-      final var quantityDifference = newQuantity - orderQuantity;
-
-      final var currentBalance = good.getBalance();
-
-      final var newBalance = currentBalance - quantityDifference;
-
-      if (newBalance < 0) {
-        throw new WarehouseAppException(String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", currentBalance));
-      }
-
-      good.setBalance(newBalance);
+      var good = checkGoodAndSetNewBalance(orderGood, newQuantity);
       orderGood.setGood(good);
 
       orderGood.setQuantity(newQuantity);
@@ -106,24 +81,54 @@ public class OrdersGoodsService {
     });
   }
 
-  public void deleteOrdersGoodsByOrderId(Long ordersGoodsId, Long orderId) {
+  @Transactional
+  public void deleteOrdersGoodsByOrderId(Long ordersGoodsId) {
     var ordersGood = ordersGoodsRepository.findById(ordersGoodsId)
         .orElseThrow(() -> new WarehouseAppException("Нет товаров в заказе"));
-
+    var good = ordersGood.getGood();
     var goodName = ordersGood.getGoodName();
+    var order = ordersGood.getOrder();
 
-    log.info("Deleting good: {} from order with id: {}", goodName, orderId);
+    if (order == null) {
+      throw new WarehouseAppException("Заказ отсутствует для данной позиции. Обновите список заказов.");
+    }
 
-    var order = ordersRepository.findById(orderId)
-        .orElseThrow(() -> new WarehouseAppException("Заказ не найден"));
-    order.removeOrdersGoodsByName(goodName);
+    log.info("Deleting good: {} from order with id: {}", goodName, order.getId());
 
-    var good = goodRepository.findByName(goodName)
-        .orElseThrow(() -> new WarehouseAppException("Товар не найден"));
-
+    order.removeOrdersGoodsById(ordersGoodsId);
     good.setBalance(good.getBalance() + ordersGood.getQuantity());
     ordersRepository.save(order);
-    goodRepository.save(good);
-    log.info("Successfully deleted good: {} from order with id: {}", goodName, orderId);
+    log.info("Successfully deleted good: {} from order with id: {}", goodName, order.getId());
+  }
+
+  private static GoodEntity checkGoodAndSetNewBalance(OrdersGoodsEntity orderGood, Long newQuantity) {
+    final var orderQuantity = orderGood.getQuantity();
+
+    if (orderQuantity <= 0) {
+      throw new WarehouseAppException("Новое количество не может быть меньше или равно нулю. Если нет необходимости в оформлении данной позиции - удалите");
+    }
+
+    if (newQuantity.equals(orderQuantity)) {
+      throw new WarehouseAppException("Новые данные идентичны существующему заказу");
+    }
+
+    var good = orderGood.getGood();
+
+    if (good == null) {
+      throw new WarehouseAppException("Товар не найден");
+    }
+
+    final var quantityDifference = newQuantity - orderQuantity;
+
+    final var currentBalance = good.getBalance();
+
+    final var newBalance = currentBalance - quantityDifference;
+
+    if (newBalance < 0) {
+      throw new WarehouseAppException(String.format("Недостаточно товара на складе. Максимально доступно %s единиц для списания.", currentBalance));
+    }
+
+    good.setBalance(newBalance);
+    return good;
   }
 }
