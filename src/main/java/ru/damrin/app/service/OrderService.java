@@ -105,7 +105,7 @@ public class OrderService {
           .orElseThrow(() -> new WarehouseAppException(
               String.format("Товар с идентификатором %s не найден в базе. Невозможно создать заказ.", goodOrderDto.goodId())));
       var newBalance = good.getBalance() - goodOrderDto.quantity();
-      if (newBalance <= 0) {
+      if (newBalance < 0) {
         throw new WarehouseAppException(
             String.format("Нет необходимого количества %s на остатках. Проверьте наличие.", good.getName()));
       }
