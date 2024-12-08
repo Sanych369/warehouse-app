@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +46,7 @@ public class OrdersGoodsEntity {
   @Column(name = "goods_quantity")
   private Long quantity;
 
-  @ManyToOne(cascade = CascadeType.MERGE)
+  @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   private GoodEntity good;
 
   @PrePersist

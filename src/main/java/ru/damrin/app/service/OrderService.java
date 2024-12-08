@@ -1,5 +1,6 @@
 package ru.damrin.app.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +61,7 @@ public class OrderService {
         .toList();
   }
 
+  @Transactional
   public void createOrder(CreateOrderDto orderDto) {
     log.info("Create order: {}", orderDto.goodOrders());
     final var company = companyRepository.findById(orderDto.companyId())
@@ -84,7 +86,7 @@ public class OrderService {
 
     if (StringUtils.isNotEmpty(invalidQuantityGoods)) {
       throw new WarehouseAppException(
-          String.format("Нет необходимого количества товаров: %s на складе. Проверьте количество и повторите", invalidQuantityGoods));
+          String.format("Товара: %s нет в наличии на складе. Замените данные позиции.", invalidQuantityGoods));
     }
 
     //TODO: берётся из сесурьки
@@ -97,16 +99,23 @@ public class OrderService {
         .build();
 
     orderDto.goodOrders().forEach(goodOrderDto -> {
-      final var good = requestedGoods.stream()
+      var good = requestedGoods.stream()
           .filter(requestGood -> requestGood.getId().equals(goodOrderDto.goodId()))
           .findFirst()
           .orElseThrow(() -> new WarehouseAppException(
               String.format("Товар с идентификатором %s не найден в базе. Невозможно создать заказ.", goodOrderDto.goodId())));
+      var newBalance = good.getBalance() - goodOrderDto.quantity();
+      if (newBalance <= 0) {
+        throw new WarehouseAppException(
+            String.format("Нет необходимого количества %s на остатках. Проверьте наличие.", good.getName()));
+      }
+
+      good.setBalance(newBalance);
 
       order.addOrdersGoods(
           OrdersGoodsEntity.builder()
               .sum(good.getSalePrice() * goodOrderDto.quantity())
-              .goodName(good.getName())
+              .good(good)
               .quantity(goodOrderDto.quantity())
               .build());
     });
