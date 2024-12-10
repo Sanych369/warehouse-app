@@ -71,4 +71,21 @@ public class SortService {
       default -> Sort.by(Sort.Direction.ASC, "createdAt");
     };
   }
+
+  public Sort getSortOrderForStoreHistory(String sort) {
+    return switch (sort) {
+      case "good_name_asc" -> Sort.by(Sort.Direction.ASC, "goodName");
+      case "good_name_desc" -> Sort.by(Sort.Direction.DESC, "goodName");
+      case "purchase_price_asc" -> Sort.by(Sort.Direction.ASC, "purchasePrice");
+      case "purchase_price_desc" -> Sort.by(Sort.Direction.DESC, "purchasePrice");
+      case "arrived_total_asc" -> Sort.by(Sort.Direction.ASC, "arrivedTotal");
+      case "arrived_total_desc" -> Sort.by(Sort.Direction.DESC, "arrivedTotal");
+      case "consumption_total_asc" -> Sort.by(Sort.Direction.ASC, "consumptionTotal");
+      case "consumption_total_desc" -> Sort.by(Sort.Direction.DESC, "consumptionTotal");
+      case "reason_asc" -> Sort.by(Sort.Direction.ASC, "reason");
+      case "reason_desc" -> Sort.by(Sort.Direction.DESC, "reason");
+      case "date_desc" -> Sort.by(Sort.Direction.DESC, "createdAt");
+      default -> Sort.by(Sort.Direction.ASC, "createdAt");
+    };
+  }
 }

@@ -15,6 +15,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import ru.damrin.app.common.enums.Position;
+import ru.damrin.app.common.handler.CustomAuthenticationFailureHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -22,49 +24,62 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class SecurityConfig {
 
   private static final RequestMatcher PUBLIC_URLS = new OrRequestMatcher(
-      new AntPathRequestMatcher("/api/v1/login/**")
-      , new AntPathRequestMatcher("/actuator/**")
-      , new AntPathRequestMatcher("/swagger-ui/**")
-      , new AntPathRequestMatcher("/v3/api-docs/**")
+      new AntPathRequestMatcher("/actuator/"),
+      new AntPathRequestMatcher("/swagger-ui/"),
+      new AntPathRequestMatcher("/v3/api-docs/"),
+      new AntPathRequestMatcher("/css/**"));
 
-  );
+  private static final RequestMatcher ALL_URLS = new OrRequestMatcher(
+      new AntPathRequestMatcher("/profile/**"),
+      new AntPathRequestMatcher("/help/**"));
 
 
-//    private static final RequestMatcher MANAGER_URLS = new OrRequestMatcher(
-//            new AntPathRequestMatcher("")
-//    );
-//
-//    private static final RequestMatcher STOREKEEPER_URLS = new OrRequestMatcher(
-//            new AntPathRequestMatcher("")
-//    );
-//
-//    private static final RequestMatcher ADMIN_URLS = new OrRequestMatcher(
-//            new AntPathRequestMatcher("")
-//    );
+  private static final RequestMatcher ADMIN_URLS = new OrRequestMatcher(
+      new AntPathRequestMatcher("/admin/**"));
+
+  private static final RequestMatcher STOREKEEPER_URLS = new OrRequestMatcher(
+      new AntPathRequestMatcher("/storekeeper/**"));
+
+  private static final RequestMatcher MANAGER_URL = new OrRequestMatcher(
+      new AntPathRequestMatcher("/manager/**"));
+
 
   private final WareHouseUserDetailsService wareHouseUserDetailsService;
 
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-
     http
         .csrf(AbstractHttpConfigurer::disable)
-//                .httpBasic(Customizer.withDefaults())
-
-//        .authorizeHttpRequests(authorize ->
-//                authorize
-////                    .requestMatchers(PUBLIC_URLS).permitAll()
-//                                .requestMatchers(MANAGER_URLS).hasAnyAuthority(Role.MANAGER, Role.ADMIN)
-//                                .requestMatchers(STOREKEEPER_URLS).hasAuthority(Role.STOREKEEPER)
-//                                .requestMatchers(ADMIN_URLS).hasAuthority(Role.ADMIN)
-//                    .anyRequest().authenticated()
-//        )
-//                .formLogin(withDefaults())
+        .cors(AbstractHttpConfigurer::disable)
+        .authorizeHttpRequests(authorize ->
+            authorize
+                .requestMatchers(PUBLIC_URLS).permitAll()
+                .requestMatchers(ALL_URLS).authenticated()
+                .requestMatchers(ADMIN_URLS).hasAuthority(Position.ADMIN.name())
+                .requestMatchers(STOREKEEPER_URLS).hasAnyAuthority(Position.ADMIN.name(), Position.STOREKEEPER.name())
+                .requestMatchers(MANAGER_URL).hasAnyAuthority(Position.ADMIN.name(), Position.MANAGER.name())
+                .anyRequest().authenticated()
+        )
+        .formLogin(form -> form
+            .loginPage("/login")
+            .loginProcessingUrl("/login")
+            .defaultSuccessUrl("/", true)
+            .failureHandler(failureHandler())
+            .permitAll()
+        )
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/login?logout=true")
+            .permitAll()
+        )
         .authenticationManager(authenticationManager());
     return http.build();
+  }
 
+  @Bean
+  public CustomAuthenticationFailureHandler failureHandler() {
+    return new CustomAuthenticationFailureHandler();
   }
 
   @Bean

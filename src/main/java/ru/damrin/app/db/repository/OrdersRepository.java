@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.damrin.app.db.entity.OrderEntity;
 
@@ -30,13 +31,23 @@ public interface OrdersRepository extends JpaRepository<OrderEntity, Long> {
                                        LocalDate dateTo,
                                        Pageable pageable);
 
+  @Query("SELECT o FROM OrderEntity o WHERE " +
+      "o.user.id = :userId AND (:company IS NULL OR o.company.name LIKE %:company%) AND " +
+      "(:totalAmount IS NULL OR o.totalAmount = :totalAmount) AND " +
+      "(CAST(:dateFrom AS DATE ) IS NULL OR o.createdAt >= :dateFrom) AND " +
+      "(CAST(:dateTo AS DATE )IS NULL OR o.createdAt <= :dateTo)")
+  Page<OrderEntity> findAllWithFiltersForUser(
+      @Param("userId") Long userId,
+      @Param("company") String company,
+      @Param("totalAmount") Long totalAmount,
+      @Param("dateFrom") LocalDate dateFrom,
+      @Param("dateTo") LocalDate dateTo,
+      Pageable pageable);
+
   Set<OrderEntity> findAllByCreatedAtBetween(LocalDate from, LocalDate to);
 
   Set<OrderEntity> findAllByUserIdAndCreatedAtBetween(Long userId, LocalDate from, LocalDate to);
 
-  Set<OrderEntity> findAllByUserIdAndCreatedAt(Long userId, LocalDate createdAt);
-
   Set<OrderEntity> findAllByOrderByCreatedAtDesc();
 
-  Set<OrderEntity> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 }

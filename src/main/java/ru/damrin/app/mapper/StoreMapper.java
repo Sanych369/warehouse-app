@@ -13,6 +13,9 @@ import java.util.List;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = MappingConstants.ComponentModel.SPRING,
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface StoreMapper {
+
+  @Mapping(target = "arrivedTotal", defaultValue = "0L")
+  @Mapping(target = "consumptionTotal", defaultValue = "0L")
   StoreEntity toEntity(StoreDto storeDto);
 
   @Mapping(target = "goodName", source = "good.name")

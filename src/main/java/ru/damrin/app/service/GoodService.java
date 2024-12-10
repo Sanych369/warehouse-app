@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
@@ -28,12 +27,14 @@ public class GoodService {
   private final GoodMapper mapper;
 
   public List<GoodDto> getAllGoods() {
-    return goodRepository.findAll().stream().map(mapper::toDto).toList();
+    return goodRepository.findAll().stream()
+        .map(mapper::toDto)
+        .toList();
   }
 
-  public Page<GoodDto> getGoodsForOrder(String name, Long categoryId, int page, int size) {
-    Pageable pageable = PageRequest.of(page, size);
-    return goodRepository.findByFiltersForOrder(name, categoryId, pageable)
+  public Page<GoodDto> getGoodsForOrder(String name, Long categoryId, Long salePrice, Long balance, int page, int size) {
+    final var pageable = PageRequest.of(page, size);
+    return goodRepository.findByFiltersForOrder(name, categoryId, salePrice, balance, pageable)
         .map(mapper::toDto);
   }
 

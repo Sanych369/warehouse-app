@@ -21,7 +21,7 @@ CREATE TABLE orders_goods
     good_name      VARCHAR(255)                            NOT NULL,
     order_id       BIGINT                                  NOT NULL,
     goods_quantity BIGINT                                  NOT NULL,
-    good_id BIGINT,
+    good_id        BIGINT,
     sum            BIGINT                                  NOT NULL
 );
 

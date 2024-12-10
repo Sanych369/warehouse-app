@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление пользователями</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ru.js"></script>
+
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1 class="logo">
+            <i class="fas fa-chart-line"></i> Отчеты
+        </h1>
+        <nav class="navbar">
+            <a href="/" class="active"><i class="fas fa-home"></i> Главная</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="management">
+        <div class="management-title">
+            <h2>Отчеты</h2>
+            <p>Здесь вы можете сформировать и скачать отчеты по продажам и движению товаров.</p>
+        </div>
+
+        <div class="management-actions">
+            <div class="button-container">
+                <button class="management-item" onclick="openUserSaleReportForm()">
+                    <i class="fa fa-users"></i> Отчет по продажам (текущий пользователь)
+                    <span class="management-tooltip">Скачать отчет по своим продажам</span>
+                </button>
+            </div>
+
+            <div class="button-container">
+                <button class="management-item" onclick="openSaleReportForm()">
+                    <i class="fa fa-user-plus"></i> Отчет по продажам (все пользователи)
+                    <span class="management-tooltip">Скачать отчет по всем продажам</span>
+                </button>
+            </div>
+
+            <div class="button-container">
+                <button class="management-item" onclick="openStoreReportForm()">
+                    <i class="fa fa-user-plus"></i> Отчет по движению товаров
+                    <span class="management-tooltip">Скачать отчет по движению товаров</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="add-form" id="saleReportModal" style="display: none;">
+            <h3>Сформировать отчет по продажам</h3>
+            <form id="saleReportForm">
+                <div class="form-container">
+                    <label for="dateFromSearch">Дата от:</label>
+                    <input type="text" id="dateFromSearch" placeholder="Выберите дату" required>
+
+                    <label for="dateToSearch">Дата до:</label>
+                    <input type="text" id="dateToSearch" placeholder="Выберите дату" required>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn-success" onclick="generateSaleReport()">Скачать отчет</button>
+                        <button type="button" class="btn-danger" onclick="closeSaleReportForm()">Отмена</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="add-form" id="storeReportModal" style="display: none;">
+            <h3>Сформировать отчет по движению товаров</h3>
+            <form id="storeReportForm">
+                <div class="form-container">
+                    <label for="storeDateFrom">Дата от:</label>
+                    <input type="text" id="storeDateFrom" placeholder="Выберите дату" required>
+
+                    <label for="storeDateTo">Дата до:</label>
+                    <input type="text" id="storeDateTo" placeholder="Выберите дату" required>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn-success" onclick="generateStoreReport()">Скачать отчет</button>
+                        <button type="button" class="btn-danger" onclick="closeStoreReportForm()">Отмена</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="add-form" id="userSaleReportModal" style="display: none;">
+            <h3>Сформировать отчет по продажам (текущий пользователь)</h3>
+            <form id="userSaleReportForm">
+                <div class="form-container">
+                    <label for="userSaleDateFrom">Дата от:</label>
+                    <input type="text" id="userSaleDateFrom" placeholder="Выберите дату" required>
+
+                    <label for="userSaleDateTo">Дата до:</label>
+                    <input type="text" id="userSaleDateTo" placeholder="Выберите дату" required>
+
+                    <div class="form-buttons">
+                        <button type="button" class="btn-success" onclick="generateUserSaleReport()">Скачать отчет</button>
+                        <button type="button" class="btn-danger" onclick="closeUserSaleReportForm()">Отмена</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+    </div>
+    <button onclick="window.location.href='/'" class="back-to-main-btn">Вернуться на главную</button>
+</main>
+
+<footer>
+    <p>&copy; 2024 Система управления товарами и категориями</p>
+</footer>
+
+<script>
+
+    function openSaleReportForm() {
+        document.getElementById('saleReportModal').style.display = 'block';
+    }
+
+    function closeSaleReportForm() {
+        document.getElementById('saleReportModal').style.display = 'none';
+    }
+
+    function generateSaleReport() {
+        const dateFrom = document.getElementById('dateFromSearch').value;
+        const dateTo = document.getElementById('dateToSearch').value;
+
+        if (!dateFrom || !dateTo) {
+            alert('Пожалуйста, выберите обе даты.');
+            return;
+        }
+
+        const url = `/reports/sale/all?from=${encodeURIComponent(dateFrom)}&to=${encodeURIComponent(dateTo)}`;
+
+        fetch(url)
+            .then(response => {
+
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке отчета.');
+                }
+
+                const contentDisposition = response.headers.get('Content-Disposition');
+
+                let fileName = 'report.xlsx';
+                if (contentDisposition && contentDisposition.includes('filename=')) {
+                    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?(.+)/);
+                    if (match && match[1]) {
+                        fileName = decodeURIComponent(match[1].replace(/"/g, ''));
+                    }
+                }
+
+                return response.blob().then(blob => ({ blob, fileName }));
+            })
+            .then(({ blob, fileName }) => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Не удалось скачать отчет. Попробуйте позже.');
+            });
+    }
+
+    function openStoreReportForm() {
+        document.getElementById('storeReportModal').style.display = 'block';
+    }
+
+    function closeStoreReportForm() {
+        document.getElementById('storeReportModal').style.display = 'none';
+    }
+
+    function generateStoreReport() {
+        const dateFrom = document.getElementById('storeDateFrom').value;
+        const dateTo = document.getElementById('storeDateTo').value;
+
+        if (!dateFrom || !dateTo) {
+            alert('Пожалуйста, выберите обе даты.');
+            return;
+        }
+
+        const url = `/reports/store?from=${encodeURIComponent(dateFrom)}&to=${encodeURIComponent(dateTo)}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке отчета.');
+                }
+
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'store_report.xlsx';
+                if (contentDisposition && contentDisposition.includes('filename=')) {
+                    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?(.+)/);
+                    if (match && match[1]) {
+                        fileName = decodeURIComponent(match[1].replace(/"/g, ''));
+                    }
+                }
+
+                return response.blob().then(blob => ({ blob, fileName }));
+            })
+            .then(({ blob, fileName }) => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Не удалось скачать отчет. Попробуйте позже.');
+            });
+    }
+
+    function openUserSaleReportForm() {
+        document.getElementById('userSaleReportModal').style.display = 'block';
+    }
+
+    function closeUserSaleReportForm() {
+        document.getElementById('userSaleReportModal').style.display = 'none';
+    }
+
+    function generateUserSaleReport() {
+        const dateFrom = document.getElementById('userSaleDateFrom').value;
+        const dateTo = document.getElementById('userSaleDateTo').value;
+
+        if (!dateFrom || !dateTo) {
+            alert('Пожалуйста, выберите обе даты.');
+            return;
+        }
+
+        const url = `/reports/sale/my?from=${encodeURIComponent(dateFrom)}&to=${encodeURIComponent(dateTo)}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка при загрузке отчета.');
+                }
+
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let fileName = 'user_sale_report.xlsx';
+                if (contentDisposition && contentDisposition.includes('filename=')) {
+                    const match = contentDisposition.match(/filename\*?=(?:UTF-8'')?(.+)/);
+                    if (match && match[1]) {
+                        fileName = decodeURIComponent(match[1].replace(/"/g, ''));
+                    }
+                }
+
+                return response.blob().then(blob => ({ blob, fileName }));
+            })
+            .then(({ blob, fileName }) => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = fileName;
+                link.click();
+            })
+            .catch(error => {
+                console.error(error);
+                alert('Не удалось скачать отчет. Попробуйте позже.');
+            });
+    }
+
+    flatpickr("#dateFromSearch, #dateToSearch, #storeDateFrom, #storeDateTo, #userSaleDateFrom, #userSaleDateTo", {
+        locale: "ru",
+        dateFormat: "Y-m-d",
+        allowInput: true,
+    });
+
+</script>

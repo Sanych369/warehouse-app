@@ -69,8 +69,7 @@ public class GoodEntity {
   private void preRemove() {
     if (this.balance > 0) {
       throw new WarehouseAppException(String.format(
-          "Невозможно удалить товар: %s. Текущий остаток: %d", this.name, this.balance)
-      );
+          "Невозможно удалить товар: %s. Текущий остаток: %d", this.name, this.balance));
     }
   }
 

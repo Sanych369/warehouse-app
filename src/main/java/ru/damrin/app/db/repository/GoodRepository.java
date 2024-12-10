@@ -21,10 +21,14 @@ public interface GoodRepository extends JpaRepository<GoodEntity, Long> {
 
   @Query("SELECT g FROM GoodEntity g WHERE " +
       "(:name IS NULL OR LOWER(g.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
-      "(:categoryId IS NULL OR g.category.id = :categoryId)")
+      "(:categoryId IS NULL OR g.category.id = :categoryId) AND " +
+      "(:salePrice IS NULL OR g.salePrice = :salePrice) AND " +
+      "(:balance IS NULL OR g.balance = :balance)")
   Page<GoodEntity> findByFiltersForOrder(
       @Param("name") String name,
       @Param("categoryId") Long categoryId,
+      @Param("salePrice") Long salePrice,
+      @Param("balance") Long balance,
       Pageable pageable);
 
   @Query("SELECT g FROM GoodEntity g WHERE " +

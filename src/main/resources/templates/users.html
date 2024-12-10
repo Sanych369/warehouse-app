@@ -5,39 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление пользователями</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
 </head>
 <body>
 
 <header>
     <div class="container">
-        <h1 class="logo">Панель администратора</h1>
+        <h1 class="logo"><i class="fa fa-users"></i>Управления пользователями</h1>
         <nav class="navbar">
-            <a href="/admin">Главная</a>
-            <a href="/admin/users">Пользователи</a>
-            <a href="/admin/products">Товары</a>
-            <a href="/logout">Выйти</a>
+            <nav class="navbar">
+                <a href="/" class="active"><i class="fas fa-home"></i> Главная</a>
+                <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+            </nav>
         </nav>
     </div>
 </header>
 
 <main>
-    <div class="user-management">
-        <div class="user-management-title">
+    <div class="management">
+        <div class="management-title">
             <h2>Управление пользователями</h2>
             <p>Здесь вы можете управлять пользователями системы.</p>
         </div>
 
-        <div class="user-actions">
+        <div class="management-actions">
             <div class="button-container">
-                <button class="dashboard-item" onclick="loadUsers()">Получить список пользователей</button>
+                <button class="management-item" onclick="loadUsers()">
+                    <i class="fa fa-users"></i> Получить список пользователей
+                    <span class="management-tooltip">Загрузить список пользователей из базы данных</span>
+                </button>
             </div>
 
             <div class="button-container">
-                <button class="dashboard-item" onclick="showAddUserForm()">Добавить пользователя</button>
+                <button class="management-item" onclick="showAddUserForm()">
+                    <i class="fa fa-user-plus"></i> Добавить пользователя
+                    <span class="management-tooltip">Добавить нового пользователя в систему</span>
+                </button>
             </div>
         </div>
 
         <div class="table-container" id="userTableContainer" style="display:none; margin-top: 20px;">
+            <h3>Список пользователей</h3>
             <table id="table">
                 <thead>
                 <tr>
@@ -113,66 +122,74 @@
                 <button onclick="setAmountPerPage(30)">30</button>
                 <button onclick="setAmountPerPage(90)">90</button>
             </div>
-            <button class="hide-table-btn" onclick="toggleTableVisibility()">Скрыть таблицу</button>
+            <div class="hide-table-btn-container">
+                <button class="hide-table-btn" onclick="toggleTableVisibility()">Скрыть таблицу</button>
+            </div>
         </div>
     </div>
 
-    <div class="add-user-form" id="addUserForm" style="display:none;">
+    <div class="add-form" id="addUserForm" style="display:none;">
         <h3>Добавить пользователя</h3>
         <form id="addUserFormElement">
-            <label for="addName">Имя:</label>
-            <input type="text" id="addName" required>
+            <div class="form-container">
+                <label for="addName">Имя:</label>
+                <input type="text" id="addName" required>
 
-            <label for="addSurname">Фамилия:</label>
-            <input type="text" id="addSurname" required>
+                <label for="addSurname">Фамилия:</label>
+                <input type="text" id="addSurname" required>
 
-            <label for="addPosition">Должность:</label>
-            <select id="addPosition" required>
-                <option value="ADMIN">Администратор</option>
-                <option value="STOREKEEPER">Кладовщик</option>
-                <option value="MANAGER">Менеджер</option>
-            </select>
+                <label for="addPosition">Должность:</label>
+                <select id="addPosition" required>
+                    <option value="ADMIN">Администратор</option>
+                    <option value="STOREKEEPER">Кладовщик</option>
+                    <option value="MANAGER">Менеджер</option>
+                </select>
 
-            <label for="addEmail">Email:</label>
-            <input type="email" id="addEmail" required>
+                <label for="addEmail">Email:</label>
+                <input type="email" id="addEmail" required>
 
-            <label for="addPassword">Пароль:</label>
-            <input type="password" id="addPassword" required>
+                <label for="addPassword">Пароль:</label>
+                <input type="password" id="addPassword" required>
+            </div>
 
-            <button type="button" onclick="addUser()">Добавить пользователя</button>
-            <button type="button" onclick="cancelAdd()">Отмена</button>
+            <div class="form-buttons">
+                <button type="button" class="btn-success" onclick="addUser()">Добавить пользователя</button>
+                <button type="button" class="btn-danger" onclick="cancelAdd()">Отмена</button>
+            </div>
         </form>
     </div>
 
-    <div class="edit-user-form" id="editUserForm" style="display:none;">
+    <div class="edit-form" id="editUserForm" style="display:none;">
         <h3>Редактировать пользователя</h3>
         <form id="editUserFormElement">
-            <label for="editName">Имя:</label>
-            <input type="text" id="editName" required>
+            <div class="form-container">
+                <label for="editName">Имя:</label>
+                <input type="text" id="editName" required>
 
-            <label for="editSurname">Фамилия:</label>
-            <input type="text" id="editSurname" required>
+                <label for="editSurname">Фамилия:</label>
+                <input type="text" id="editSurname" required>
 
-            <label for="editPosition">Должность:</label>
-            <select id="editPosition" required>
-                <option value="ADMIN">Администратор</option>
-                <option value="STOREKEEPER">Кладовщик</option>
-                <option value="MANAGER">Менеджер</option>
-            </select>
+                <label for="editPosition">Должность:</label>
+                <select id="editPosition" required>
+                    <option value="ADMIN">Администратор</option>
+                    <option value="STOREKEEPER">Кладовщик</option>
+                    <option value="MANAGER">Менеджер</option>
+                </select>
 
-            <label for="editEmail">Email:</label>
-            <input type="email" id="editEmail" readonly>
+                <label for="editEmail">Email:</label>
+                <input type="email" id="editEmail" readonly>
 
-            <label for="editPassword">Новый пароль:</label>
-            <input type="password" id="editPassword">
+                <label for="editPassword">Новый пароль:</label>
+                <input type="password" id="editPassword">
+            </div>
 
-            <button type="button" onclick="saveUserChanges()">Сохранить изменения</button>
-            <button type="button" onclick="cancelEdit()">Отмена</button>
+            <div class="form-buttons">
+                <button type="button" class="btn-success" onclick="saveUserChanges()">Сохранить изменения</button>
+                <button type="button" class="btn-danger" onclick="cancelEdit()">Отмена</button>
+            </div>
         </form>
     </div>
-
-    <button onclick="window.location.href='/admin'" class="back-to-admin-btn">Вернуться на панель администратора
-    </button>
+    <button onclick="window.location.href='/'" class="back-to-main-btn">Вернуться на главную</button>
 </main>
 
 <footer>
@@ -374,5 +391,9 @@
                 });
         }
     }
-</script>
 
+    function resetInput(inputId) {
+        document.getElementById(inputId).value = '';
+        applyFilters();
+    }
+</script>

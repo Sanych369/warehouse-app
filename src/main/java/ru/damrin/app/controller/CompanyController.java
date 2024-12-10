@@ -40,7 +40,7 @@ public class CompanyController {
       @RequestParam(required = false) Boolean isActive,
       @RequestParam(required = false) String sort) {
 
-    Page<CompanyDto> companies = companyService.getCompaniesPage(name, address, phone, email, isActive, sort, page, size);
+    final var companies = companyService.getCompaniesPage(name, address, phone, email, isActive, sort, page, size);
     return ResponseEntity.ok(companies);
   }
 
@@ -60,20 +60,20 @@ public class CompanyController {
   }
 
   @PostMapping("/add")
-  public ResponseEntity<Void> addCategory(@RequestBody CompanyDto companyDto) {
+  public ResponseEntity<Void> addCompany(@RequestBody CompanyDto companyDto) {
     checkCompanyDto(companyDto);
     companyService.addCompany(companyDto);
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
   @PostMapping("/deactivate")
-  public ResponseEntity<Void> deleteCategoryById(@RequestParam Long id) {
+  public ResponseEntity<Void> deactivateCompany(@RequestParam Long id) {
     companyService.deactivateCompanyById(id);
     return ResponseEntity.ok().build();
   }
 
   @PostMapping("/change")
-  public ResponseEntity<Void> changeCategory(@RequestBody CompanyDto companyDto) {
+  public ResponseEntity<Void> changeCompany(@RequestBody CompanyDto companyDto) {
     checkCompanyDto(companyDto);
     companyService.changeCompany(companyDto);
     return ResponseEntity.ok().build();

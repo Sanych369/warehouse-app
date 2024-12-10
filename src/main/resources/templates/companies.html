@@ -3,35 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
+    <title>Управление контрагентами</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
 <body>
 
 <header>
     <div class="container">
-
+        <h1 class="logo">
+            <i class="fas fa-address-book"></i> Управление контрагентами
+        </h1>
+        <nav class="navbar">
+            <a href="/" class="active"><i class="fas fa-home"></i> Главная</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </nav>
     </div>
 </header>
+
 
 <main>
     <div class="management">
         <div class="management-title">
             <h2>Контрагенты</h2>
-            <p></p>
+            <p>Здесь вы можете управлять контрагентами: просматривать их список, добавлять новых, а также редактировать.</p>
         </div>
 
         <div class="management-actions">
             <div class="button-container">
-                <button class="dashboard-item" onclick="loadCompanies()">Получить список контрагентов</button>
+                <button class="management-item" onclick="loadCompanies()">
+                    <i class="fas fa-id-card"></i> Получить список контрагентов
+                    <span class="management-tooltip">Загрузить список всех контрагентов</span>
+                </button>
             </div>
+
             <div class="button-container">
-                <button class="dashboard-item" onclick="showAddCompanyForm()">Добавить контрагента</button>
+                <button class="management-item" onclick="showAddCompanyForm()">
+                    <i class="fas fa-plus-circle"></i> Добавить контрагента
+                    <span class="management-tooltip">Добавить нового контрагента</span>
+                </button>
             </div>
         </div>
 
-
         <div class="table-container" id="companiesTableContainer" style="display:none; margin-top: 20px;">
+            <h3>Список контрагентов</h3>
             <table id="table">
                 <thead>
                 <tr>
@@ -61,7 +76,7 @@
                     </th>
                     <th>
                         <div class="input-with-reset">
-                            <input type="text" id="emailSearch" placeholder="Поиск по телефону"
+                            <input type="text" id="emailSearch" placeholder="Поиск по email"
                                    oninput="applyFilters()">
                             <button type="button" onclick="resetInput('emailSearch')" class="reset-button">&#10006;
                             </button>
@@ -118,8 +133,11 @@
                 <button onclick="setAmountPerPage(90)">90</button>
             </div>
 
-            <button class="hide-table-btn" onclick="toggleCompaniesTableVisibility()">Скрыть таблицу</button>
+            <div class="hide-table-btn-container">
+                <button class="hide-table-btn" onclick="toggleCompaniesTableVisibility()">Скрыть таблицу</button>
+            </div>
         </div>
+
         <div class="add-form" id="addCompanyForm" style="display:none;">
             <h3>Добавить контрагента</h3>
             <form id="addCompanyFormElement">
@@ -140,9 +158,10 @@
                     <option value="true">Активен</option>
                     <option value="false">Неактивен</option>
                 </select>
-
-                <button type="button" onclick="addCompany()">Добавить контрагента</button>
-                <button type="button" onclick="cancelAddCompany()">Отмена</button>
+                <div class="form-buttons">
+                    <button type="button" class="btn-success" onclick="addCompany()">Добавить контрагента</button>
+                    <button type="button" class="btn-danger" onclick="cancelAddCompany()">Отмена</button>
+                </div>
             </form>
         </div>
 
@@ -168,22 +187,19 @@
                     <option value="true">Активен</option>
                     <option value="false">Неактивен</option>
                 </select>
-
-                <button type="button" onclick="updateCompany()">Обновить контрагента</button>
-                <button type="button" onclick="cancelEditCompany()">Отмена</button>
+                <div class="form-buttons">
+                    <button type="button" class="btn-success" onclick="updateCompany()">Обновить контрагента</button>
+                    <button type="button" class="btn-danger" onclick="cancelEditCompany()">Отмена</button>
+                </div>
             </form>
         </div>
-
-
-
     </div>
+    <button onclick="window.location.href='/'" class="back-to-main-btn">Вернуться на главную</button>
 </main>
-
 
 <footer>
     <p>&copy; 2024 Система управления товарами и категориями</p>
 </footer>
-
 </body>
 <script>
     let currentPage = 0;
@@ -281,17 +297,14 @@
         applyFilters();
     }
 
-    // Показать форму для добавления компании
     function showAddCompanyForm() {
         document.getElementById('addCompanyForm').style.display = 'block';
     }
 
-    // Скрыть форму добавления компании
     function cancelAddCompany() {
         document.getElementById('addCompanyForm').style.display = 'none';
     }
 
-    // Добавить компанию
     function addCompany() {
         const newCompany = {
             name: document.getElementById('addCompanyName').value,
@@ -322,7 +335,6 @@
             });
     }
 
-    // Показать форму для редактирования компании
     function showEditCompanyForm(id, name, address, phone, email, isActive) {
         document.getElementById('editCompanyId').value = id;
         document.getElementById('editCompanyName').value = name;
@@ -333,12 +345,10 @@
         document.getElementById('editCompanyForm').style.display = 'block';
     }
 
-    // Скрыть форму редактирования компании
     function cancelEditCompany() {
         document.getElementById('editCompanyForm').style.display = 'none';
     }
 
-    // Обновить информацию о компании
     function updateCompany() {
         const updatedCompany = {
             id: document.getElementById('editCompanyId').value,

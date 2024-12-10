@@ -56,8 +56,7 @@ public class CategoryEntity {
         .map(GoodEntity::getBalance)
         .anyMatch(balance -> balance > 0)) {
       throw new WarehouseAppException(
-          String.format("Невозможно удалить категорию %s. Имеются товары на балансе", name)
-      );
+          String.format("Невозможно удалить категорию %s. Имеются товары на балансе", name));
     }
   }
 
