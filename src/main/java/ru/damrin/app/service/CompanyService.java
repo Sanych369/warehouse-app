@@ -50,7 +50,7 @@ public class CompanyService {
                                            int page,
                                            int size) {
 
-    Sort sortOrder = sortService.getSortOrderForCompanies(sort);
+    var sortOrder = sortService.getSortOrderForCompanies(sort);
     Pageable pageable = PageRequest.of(page, size, sortOrder != null ? sortOrder : Sort.unsorted());
 
     return repository.findByFilters(name, address, phone, email, isActive, pageable)

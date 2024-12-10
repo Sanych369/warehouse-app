@@ -5,12 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Управление товарами и категориями</title>
     <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 </head>
-<body>
 
+<body>
 <header>
     <div class="container">
-
+        <h1 class="logo">
+            <i class="fas fa-boxes"></i> Управление товарами и категориями
+        </h1>
+        <nav class="navbar">
+            <a href="/" class="active"><i class="fas fa-home"></i> Главная</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </nav>
     </div>
 </header>
 
@@ -23,170 +30,325 @@
 
         <div class="management-actions">
             <div class="button-container">
-                <button class="dashboard-item" onclick="loadGoods()">Получить список товаров</button>
+                <button class="management-item" onclick="loadGoods()">
+                    <i class="fas fa-list"></i> Получить список товаров
+                    <span class="management-tooltip">Загрузить список товаров</span>
+                </button>
             </div>
+
             <div class="button-container">
-                <button class="dashboard-item" onclick="showAddGoodForm()">Добавить товар</button>
-            </div>
-        </div>
-
-
-        <div class="table-container" id="goodsTableContainer" style="display: none; margin-top: 20px;">
-            <table id="table">
-                <thead>
-                <tr>
-                    <th>
-                        <div class="input-with-reset">
-                            <input type="text" id="nameSearch" placeholder="Поиск по названию"
-                                   oninput="applyFilters()">
-                            <button type="button" onclick="resetInput('nameSearch')" class="reset-button">&#10006;
-                            </button>
-                        </div>
-                    </th>
-                    <th>
-                        <div class="input-with-reset">
-                            <input type="text" id="categorySearch" placeholder="Поиск по категории" oninput="applyFilters()">
-                            <button type="button" onclick="resetInput('categorySearch')" class="reset-button">&#10006;
-                            </button>
-                        </div>
-                    </th>
-                    <th>
-                        <div class="input-with-reset">
-                            <input type="number" id="purchasePriceSearch" placeholder="Поиск по цене закупки" oninput="applyFilters()">
-                            <button type="button" onclick="resetInput('purchasePriceSearch')" class="reset-button">&#10006;
-                            </button>
-                        </div>
-                    </th>
-                    <th>
-                        <div class="input-with-reset">
-                            <input type="number" id="salePriceSearch" placeholder="Поиск по цене продажи" oninput="applyFilters()">
-                            <button type="button" onclick="resetInput('salePriceSearch')" class="reset-button">&#10006;
-                            </button>
-                        </div>
-                    </th>
-                    <th>
-                        <div class="input-with-reset">
-                            <input type="number" id="balanceSearch" placeholder="Поиск по количеству" oninput="applyFilters()">
-                            <button type="button" onclick="resetInput('balanceSearch')" class="reset-button">&#10006;
-                            </button>
-                        </div>
-                    </th>
-                    <th>
-                        <div class="sort-container">
-                            <label for="goodsSort">Сортировать по:</label>
-                            <select id="goodsSort" onchange="applyFilters()">
-                                <option value="">Выберите</option>
-                                <option value="name_asc">Название (А-Я)</option>
-                                <option value="name_desc">Название (Я-А)</option>
-                                <option value="category_asc"> Категория (А-Я)</option>
-                                <option value="category_desc">Категория (Я-А)</option>
-                                <option value="purchase_price_asc">Цена закупки (А-Я)</option>
-                                <option value="purchase_price_desc">Цена закупки (Я-А)</option>
-                                <option value="sale_price_asc"> Цена продажи (по возрастанию)</option>
-                                <option value="sale_price_desc">Цена продажи (по убыванию)</option>
-                                <option value="balance_asc"> Количество (по возрастанию)</option>
-                                <option value="balance_desc">Количество (по убыванию)</option>
-                            </select>
-                        </div>
-                    </th>
-                </tr>
-                <tr>
-                    <th>Название товара</th>
-                    <th>Категория</th>
-                    <th>Цена закупки</th>
-                    <th>Цена продажи</th>
-                    <th>Количество</th>
-                    <th>Действия</th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
-            <div class="pagination" id="categoriesPagination">
-                <button onclick="prevPage()">Назад</button>
-                <span id="goodsPageInfo">Страница 1</span>
-                <button onclick="nextPage()">Вперед</button>
+                <button class="management-item" onclick="showAddGoodForm()">
+                    <i class="fas fa-plus-circle"></i> Добавить товар
+                    <span class="management-tooltip">Добавить новый товар</span>
+                </button>
             </div>
 
-            <div class="page-size-selector">
-                <button onclick="setAmountPerPage(10)">10</button>
-                <button onclick="setAmountPerPage(30)">30</button>
-                <button onclick="setAmountPerPage(90)">90</button>
+            <div class="button-container">
+                <button class="management-item" onclick="loadCategories()">
+                    <i class="fas fa-th-list"></i> Получить список категорий
+                    <span class="management-tooltip">Загрузить список категорий</span>
+                </button>
             </div>
 
-            <button class="hide-table-btn" onclick="toggleGoodsTableVisibility()">Скрыть таблицу</button>
-        </div>
-
-        <div class="add-good-form" id="addGoodForm" style="display:none;">
-            <h3>Добавить товар</h3>
-            <form id="addGoodFormElement">
-                <label for="addGoodName">Название товара:</label>
-                <input type="text" id="addGoodName" required>
-
-                <label for="addCategorySearch">Категория:</label>
-                <input type="text" id="addCategorySearch" placeholder="Начните вводить категорию..." oninput="filterCategories()" required>
-                <select id="addCategory" required size="5" style="width: 100%; margin-top: 5px;">
-                    <option value="" disabled selected>Выберите категорию</option>
-                </select>
-
-                <label for="addPurchasePrice">Цена закупки:</label>
-                <input type="number" id="addPurchasePrice" required>
-
-                <label for="addSalePrice">Цена продажи:</label>
-                <input type="number" id="addSalePrice" required>
-
-                <button type="button" onclick="addGood()">Добавить товар</button>
-                <button type="button" onclick="cancelAddGood()">Отмена</button>
-            </form>
-        </div>
-        <div class="edit-good-form" id="editGoodForm" style="display:none;">
-            <h3>Редактировать товар</h3>
-            <form id="editGoodFormElement">
-                <input type="hidden" id="editGoodId">
-
-                <label for="editGoodName">Название товара:</label>
-                <input type="text" id="editGoodName" required>
-
-                <label for="editCategorySearch">Категория:</label>
-                <input type="text" id="editCategorySearch" placeholder="Начните вводить категорию..." oninput="filterCategories()" required>
-                <select id="editCategory" required size="5" style="width: 100%; margin-top: 5px;">
-                    <option value="" disabled selected>Выберите категорию</option>
-                </select>
-
-                <label for="editPurchasePrice">Цена закупки:</label>
-                <input type="number" id="editPurchasePrice" required>
-
-                <label for="editSalePrice">Цена продажи:</label>
-                <input type="number" id="editSalePrice" required>
-
-                <div>
-                    <p>Для корректировки количества товара, пожалуйста, проведите <a id="acceptanceLink" href="#" target="_blank">приемку товара</a>.</p>                </div>
-
-                <button type="button" onclick="editGood()">Сохранить изменения</button>
-                <button type="button" onclick="cancelEditGood()">Отмена</button>
-            </form>
-        </div>
-        <div id="confirmDeleteModal" style="display: none;">
-            <div class="modal-content">
-                <p id="modalMessage"></p>
-                <button type="button" id="writeOffGoodsBtn">Списать товары</button>
-                <button type="button" id="cancelDeleteBtn">Отмена</button>
+            <div class="button-container">
+                <button class="management-item" onclick="showAddCategoryForm()">
+                    <i class="fas fa-folder-plus"></i> Добавить категорию
+                    <span class="management-tooltip">Добавить новую категорию</span>
+                </button>
             </div>
+
+            <div class="table-container" id="goodsTableContainer" style="display: none; margin-top: 20px;">
+                <h3>Список товаров</h3>
+                <table id="goodsTable">
+                    <thead>
+                    <tr>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="text" id="nameSearch" placeholder="Поиск по названию"
+                                       oninput="applyGoodsFilters()">
+                                <button type="button" onclick="resetInput('nameSearch')" class="reset-button">&#10006;
+                                </button>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="text" id="categorySearch" placeholder="Поиск по категории"
+                                       oninput="applyGoodsFilters()">
+                                <button type="button" onclick="resetInput('categorySearch')" class="reset-button">
+                                    &#10006;
+                                </button>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="number" id="purchasePriceSearch" placeholder="Поиск по цене закупки"
+                                       oninput="applyGoodsFilters()">
+                                <button type="button" onclick="resetInput('purchasePriceSearch')" class="reset-button">
+                                    &#10006;
+                                </button>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="number" id="salePriceSearch" placeholder="Поиск по цене продажи"
+                                       oninput="applyGoodsFilters()">
+                                <button type="button" onclick="resetInput('salePriceSearch')" class="reset-button">
+                                    &#10006;
+                                </button>
+
+                            </div>
+                        </th>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="number" id="balanceSearch" placeholder="Поиск по количеству"
+                                       oninput="applyGoodsFilters()">
+                                <button type="button" onclick="resetInput('balanceSearch')" class="reset-button">
+                                    &#10006;
+                                </button>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="sort-container">
+                                <label for="goodsSort">Сортировать по:</label>
+                                <select id="goodsSort" onchange="applyGoodsFilters()">
+                                    <option value="">Выберите</option>
+                                    <option value="name_asc">Название (А-Я)</option>
+                                    <option value="name_desc">Название (Я-А)</option>
+                                    <option value="category_asc"> Категория (А-Я)</option>
+                                    <option value="category_desc">Категория (Я-А)</option>
+                                    <option value="purchase_price_asc">Цена закупки (А-Я)</option>
+                                    <option value="purchase_price_desc">Цена закупки (Я-А)</option>
+                                    <option value="sale_price_asc"> Цена продажи (по возрастанию)</option>
+                                    <option value="sale_price_desc">Цена продажи (по убыванию)</option>
+                                    <option value="balance_asc"> Количество (по возрастанию)</option>
+                                    <option value="balance_desc">Количество (по убыванию)</option>
+                                </select>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Название товара</th>
+                        <th>Категория</th>
+                        <th>Цена закупки</th>
+                        <th>Цена продажи</th>
+                        <th>Количество</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="pagination" id="goodsPagination">
+                    <button onclick="prevGoodsPage()">Назад</button>
+                    <span id="goodsPageInfo">Страница 1</span>
+                    <button onclick="nextGoodsPage()">Вперед</button>
+                </div>
+
+                <div class="page-size-selector">
+                    <button onclick="setAmountGoodsPerPage(10)">10</button>
+                    <button onclick="setAmountGoodsPerPage(30)">30</button>
+                    <button onclick="setAmountGoodsPerPage(90)">90</button>
+                </div>
+                <div class="hide-table-btn-container">
+                    <button class="hide-table-btn" onclick="toggleGoodsTableVisibility()">Скрыть таблицу</button>
+                </div>
+            </div>
+
+            <div class="table-container" id="categoriesTableContainer" style="display:none; margin-top: 20px;">
+                <h3>Список категорий</h3>
+                <table id="table">
+                    <thead>
+                    <tr>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="text" id="categorySearch2" placeholder="Поиск по названию"
+                                       oninput="applyCategoriesFilters()">
+                                <button type="button" onclick="resetInput('categorySearch2')" class="reset-button">
+                                    &#10006;
+                                </button>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="input-with-reset">
+                                <input type="number" id="markupSearch" placeholder="Поиск по наценке" step="0.01"
+                                       min="0"
+                                       oninput="applyCategoriesFilters()">
+                                <button type="button" onclick="resetInput('markupSearch')" class="reset-button">&#10006;
+                                </button>
+                            </div>
+                        </th>
+                        <th>
+                            <div class="sort-container">
+                                <label for="categorySort">Сортировать по:</label>
+                                <select id="categorySort" onchange="applyCategoriesFilters()">
+                                    <option value="">Выберите</option>
+                                    <option value="name_asc">Название (А-Я)</option>
+                                    <option value="name_desc">Название (Я-А)</option>
+                                    <option value="markup_asc">Наценка (по возрастанию)</option>
+                                    <option value="markup_desc">Наценка (по убыванию)</option>
+                                </select>
+                            </div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Название категории</th>
+                        <th>Процент наценки</th>
+                        <th>Действия</th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <div class="pagination" id="categoriesPagination">
+                    <button onclick="prevCategoriesPage()">Назад</button>
+                    <span id="categoriesPageInfo">Страница 1</span>
+                    <button onclick="nextCategoriesPage()">Вперед</button>
+                </div>
+
+                <div class="page-size-selector">
+                    <button onclick="setAmountCategoriesPerPage(10)">10</button>
+                    <button onclick="setAmountCategoriesPerPage(30)">30</button>
+                    <button onclick="setAmountCategoriesPerPage(90)">90</button>
+                </div>
+                <div class="hide-table-btn-container">
+                    <button class="hide-table-btn" onclick="toggleCategoriesTableVisibility()">Скрыть таблицу</button>
+                </div>
+            </div>
+
+            <div class="add-form" id="addGoodForm" style="display:none;">
+                <h3>Добавить товар</h3>
+                <form id="addGoodFormElement">
+                    <div class="form-container">
+                        <label for="addGoodName">Название товара:</label>
+                        <input type="text" id="addGoodName" required>
+
+                        <label for="addCategorySearch">Категория:</label>
+                        <input type="text" id="addCategorySearch" placeholder="Начните вводить категорию..."
+                               oninput="filterCategories('add')" required>
+                        <select id="addCategory" required size="5" style="width: 95%; margin-top: 5px;">
+                            <option value="" disabled selected>Выберите категорию</option>
+                        </select>
+
+                        <label for="addPurchasePrice">Цена закупки:</label>
+                        <input type="number" id="addPurchasePrice" required>
+
+                        <label for="addSalePrice">Цена продажи:</label>
+                        <input type="number" id="addSalePrice" required>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-success" onclick="addGood()">Добавить товар</button>
+                            <button type="button" class="btn-danger" onclick="cancelAddGood()">Отмена</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="edit-form" id="editGoodForm" style="display:none;">
+                <h3>Редактировать товар</h3>
+                <form id="editGoodFormElement">
+                    <div class="form-container">
+
+                        <input type="hidden" id="editGoodId">
+
+                        <label for="editGoodName">Название товара:</label>
+                        <input type="text" id="editGoodName" required>
+
+                        <label for="editCategorySearch">Категория:</label>
+                        <input type="text" id="editCategorySearch" placeholder="Начните вводить категорию..."
+                               oninput="filterCategories('edit')" required>
+                        <select id="editCategory" required size="5" style="width: 95%; margin-top: 5px;">
+                            <option value="" disabled selected>Выберите категорию</option>
+                        </select>
+
+                        <label for="editPurchasePrice">Цена закупки:</label>
+                        <input type="number" id="editPurchasePrice" required>
+
+                        <label for="editSalePrice">Цена продажи:</label>
+                        <input type="number" id="editSalePrice" required>
+
+                        <div>
+                            <p>Для корректировки количества товара, пожалуйста, проведите
+                                <a id="acceptanceLink" href="#" target="_blank">приемку товара</a>.
+                            </p>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-success" onclick="editGood()">Сохранить изменения</button>
+                            <button type="button" class="btn-danger" onclick="cancelEditGood()">Отмена</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="add-form" id="addCategoryForm" style="display:none;">
+                <h3>Добавить категорию</h3>
+                <form id="addCategoryFormElement">
+                    <div class="form-container">
+
+                        <label for="addCategoryName">Название категории:</label>
+                        <input type="text" id="addCategoryName" required>
+                        <label for="addMarkupPercentage">Процент наценки:</label>
+                        <input type="number" id="addMarkupPercentage" required step="0.01" min="0" max="100">
+                        <div class="form-buttons">
+                            <button type="button" class="btn-success" onclick="addCategory()">Добавить категорию
+                            </button>
+                            <button type="button" class="btn-danger" onclick="cancelAddCategory()">Отмена</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="edit-form" id="editCategoryForm" style="display:none;">
+                <h3>Редактировать категорию</h3>
+                <form id="editCategoryFormElement">
+                    <div class="form-container">
+                        <input type="hidden" id="editCategoryId">
+
+                        <label for="editCategoryName">Название категории:</label>
+                        <input type="text" id="editCategoryName" required>
+
+                        <label for="editMarkupPercentage">Процент наценки:</label>
+                        <input type="number" id="editMarkupPercentage" required step="0.01" min="0" max="100">
+
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="editNeedRecalculation">
+                            <label for="editNeedRecalculation">Обновить процент наценки для товаров в этой
+                                категории:</label>
+                        </div>
+                        <div class="form-buttons">
+                            <button type="button" class="btn-success" onclick="updateCategory()">Обновить категорию
+                            </button>
+                            <button type="button" class="btn-danger" onclick="cancelEditCategory()">Отмена</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div id="confirmDeleteModal" style="display: none;">
+                <div class="modal-content">
+                    <p id="modalMessage"></p>
+                    <div class="form-buttons">
+                        <button type="button" class="btn-success" id="writeOffGoodsBtn">Списать товары</button>
+                        <button type="button" class="btn-danger" id="cancelDeleteBtn">Отмена</button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
-
-
+    <button onclick="window.location.href='/'" class="back-to-main-btn">Вернуться на главную</button>
 </main>
 
 <footer>
     <p>&copy; 2024 Система управления товарами и категориями</p>
 </footer>
-<script>
-    let currentPage = 0;
-    let amountPerPage = 10;
-    let totalPages = 1;
 
-    function applyFilters() {
+<script>
+    let currentGoodsPage = 0;
+    let amountPerPage = 10;
+    let totalGoodsPages = 1;
+    let currentCategoriesPage = 0;
+    let totalCategoriesPages = 1;
+
+    function applyGoodsFilters() {
         const nameSearch = document.getElementById('nameSearch').value;
         const categorySearch = document.getElementById('categorySearch').value;
         const purchasePriceSearch = document.getElementById('purchasePriceSearch').value;
@@ -198,12 +360,12 @@
     }
 
     function loadGoods(name = '', categorySearch = '', purchasePriceSearch = '', salePriceSearch = '', balanceSearch = '', sort = '') {
-        const url = `/goods/page?page=${currentPage}&size=${amountPerPage}&name=${encodeURIComponent(name)}&category=${encodeURIComponent(categorySearch)}&purchasePrice=${encodeURIComponent(purchasePriceSearch)}&salePrice=${encodeURIComponent(salePriceSearch)}&balance=${encodeURIComponent(balanceSearch)}&sort=${encodeURIComponent(sort)}`;
+        const url = `/goods/page?page=${currentGoodsPage}&size=${amountPerPage}&name=${encodeURIComponent(name)}&category=${encodeURIComponent(categorySearch)}&purchasePrice=${encodeURIComponent(purchasePriceSearch)}&salePrice=${encodeURIComponent(salePriceSearch)}&balance=${encodeURIComponent(balanceSearch)}&sort=${encodeURIComponent(sort)}`;
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
-                const tableBody = document.querySelector('#table tbody');
+                const tableBody = document.querySelector('#goodsTable tbody');
                 tableBody.innerHTML = '';
 
                 data.content.forEach(good => {
@@ -223,31 +385,31 @@
                 });
 
                 document.getElementById('goodsPageInfo').textContent = `Страница ${data.number + 1} из ${data.totalPages}`;
-                currentPage = data.number;
-                totalPages = data.totalPages;
+                currentGoodsPage = data.number;
+                totalGoodsPages = data.totalPages;
 
                 document.getElementById('goodsTableContainer').style.display = 'block';
             })
             .catch(error => console.error('Ошибка при получении товаров:', error));
     }
 
-    function prevPage() {
-        if (currentPage > 0) {
-            currentPage--;
+    function prevGoodsPage() {
+        if (currentGoodsPage > 0) {
+            currentGoodsPage--;
             loadGoods();
         }
     }
 
-    function nextPage() {
-        if (currentPage < totalPages - 1) {
-            currentPage++;
+    function nextGoodsPage() {
+        if (currentGoodsPage < totalGoodsPages - 1) {
+            currentGoodsPage++;
             loadGoods();
         }
     }
 
-    function setAmountPerPage(size) {
+    function setAmountGoodsPerPage(size) {
         amountPerPage = size;
-        currentPage = 0;
+        currentGoodsPage = 0;
         loadGoods();
     }
 
@@ -256,12 +418,75 @@
         tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
     }
 
-    function resetInput(inputId) {
-        document.getElementById(inputId).value = '';
-        applyFilters();
+    function applyCategoriesFilters() {
+        const categorySearch = document.getElementById('categorySearch').value;
+        const markupSearch = document.getElementById('markupSearch').value;
+        const sortOption = document.getElementById('categorySort').value;
+
+        loadCategories(categorySearch, markupSearch, sortOption);
     }
 
-    let categoriesList = []; // Хранит полный список категорий
+    function loadCategories(name = '', markupPercentage = '', sort = '') {
+        const url = `/categories/page?page=${currentCategoriesPage}&size=${amountPerPage}&name=${name}&markupPercentage=${markupPercentage}&sort=${sort}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector('#table tbody');
+                tableBody.innerHTML = '';
+
+                data.content.forEach(category => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                    <td>${category.name}</td>
+                    <td>${category.markupPercentage}%</td>
+                    <td>
+                        <a href="#" onclick="showEditCategoryForm('${category.id}', '${category.name}', ${category.markupPercentage})">Редактировать</a>
+                        <a href="#" onclick="deleteCategoryById('${category.id}')">Удалить</a>
+                    </td>
+                `;
+                    tableBody.appendChild(row);
+                });
+
+                document.getElementById('categoriesPageInfo').textContent = `Страница ${data.number + 1} из ${data.totalPages}`;
+                currentCategoriesPage = data.number;
+                totalCategoriesPages = data.totalPages;
+                document.getElementById('categoriesTableContainer').style.display = 'block';
+            })
+            .catch(error => console.error('Ошибка при получении категорий:', error));
+    }
+
+    function prevCategoriesPage() {
+        if (currentCategoriesPage > 0) {
+            currentCategoriesPage--;
+            loadCategories();
+        }
+    }
+
+    function nextCategoriesPage() {
+        if (currentCategoriesPage < totalCategoriesPages - 1) {
+            currentCategoriesPage++;
+            loadCategories();
+        }
+    }
+
+    function setAmountCategoriesPerPage(size) {
+        amountPerPage = size;
+        currentCategoriesPage = 0;
+        loadCategories();
+    }
+
+    function toggleCategoriesTableVisibility() {
+        const tableContainer = document.getElementById('categoriesTableContainer');
+        tableContainer.style.display = tableContainer.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function resetInput(inputId) {
+        document.getElementById(inputId).value = '';
+        applyGoodsFilters();
+    }
+
+    let categoriesList = [];
 
     function showAddGoodForm() {
         fetch('/categories/list')
@@ -312,7 +537,6 @@
             });
     }
 
-
     function cancelEditGood() {
         document.getElementById('editGoodForm').style.display = 'none';
     }
@@ -349,21 +573,19 @@
             });
     }
 
-
-
-    function showEditGoodForm(id, name, category, purchasePrice, salePrice, balance) {
+    function showEditGoodForm(id, name, category, purchasePrice, salePrice) {
         fetch('/categories/list')
             .then(response => response.json())
             .then(categories => {
                 categoriesList = categories;
-                renderCategories(categoriesList, 'edit'); // Рендерим категории для редактирования
+                renderCategories(categoriesList, 'edit');
                 document.getElementById('editGoodForm').style.display = 'block';
                 document.getElementById('editGoodId').value = id;
                 document.getElementById('editGoodName').value = name;
                 document.getElementById('editCategory').value = category.id;
                 document.getElementById('editPurchasePrice').value = purchasePrice;
                 document.getElementById('editSalePrice').value = salePrice;
-                document.getElementById('acceptanceLink').href = `/acceptance?id=${id}`;
+                document.getElementById('acceptanceLink').href = `/store`;
             })
             .catch(error => {
                 console.error('Ошибка при загрузке категорий:', error);
@@ -401,7 +623,7 @@
                     if (response.ok) {
                         alert('Товар удален.');
                         loadCompanies();
-                    } else if (response.status === 409) {
+                    } else if (response.status === 400) {
                         response.json().then(data => {
                             const message = data.message;
                             showConfirmDeleteModal(message);
@@ -415,30 +637,134 @@
                 });
         }
     }
+
     function showConfirmDeleteModal(message) {
         const modal = document.getElementById('confirmDeleteModal');
-        const modalMessage = document.getElementById('modalMessage');  // Элемент для сообщения
-        const writeOffButton = document.getElementById('writeOffGoodsBtn');  // Кнопка списания товаров
+        const modalMessage = document.getElementById('modalMessage');
+        const writeOffButton = document.getElementById('writeOffGoodsBtn');
 
         modalMessage.innerText = message;
-
 
         modal.style.display = 'flex';
         writeOffButton.style.display = 'block';
     }
-
 
     function hideConfirmDeleteModal() {
         const modal = document.getElementById('confirmDeleteModal');
         modal.style.display = 'none'; // Скрываем модальное окно
     }
 
+    function showAddCategoryForm() {
+        document.getElementById('addCategoryForm').style.display = 'block';
+    }
+
+    function cancelAddCategory() {
+        document.getElementById('addCategoryForm').style.display = 'none';
+    }
+
+    function addCategory() {
+        const newCategory = {
+            name: document.getElementById('addCategoryName').value,
+            markupPercentage: parseFloat(document.getElementById('addMarkupPercentage').value) // Добавляем процент наценки
+        };
+
+        fetch('/categories/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(newCategory)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Категория успешно добавлена.');
+                    loadCategories();
+                    cancelAddCategory();
+                } else {
+                    alert('Ошибка при добавлении категории.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при добавлении категории:', error);
+            });
+    }
+
+    function deleteCategoryById(categoryId) {
+        const confirmation = confirm('Вы уверены, что хотите удалить эту категорию?');
+        if (confirmation) {
+            fetch(`/categories/delete?id=${categoryId}`, {
+                method: 'DELETE'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Категория удалена.');
+                        loadCategories();
+                    } else if (response.status === 400) {
+                        response.json().then(data => {
+                            const message = data.message;
+                            showConfirmDeleteModal(message);
+                        });
+                    } else {
+                        alert('Ошибка при удалении категории.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка при удалении категории:', error);
+                });
+        }
+    }
 
     document.getElementById('writeOffGoodsBtn').addEventListener('click', function () {
-        window.location.href = '/write-off-goods';
+        window.location.href = '/store';
     });
 
     document.getElementById('cancelDeleteBtn').addEventListener('click', function () {
         hideConfirmDeleteModal();
     });
+
+    function showEditCategoryForm(id, name, markupPercentage) {
+        document.getElementById('editCategoryId').value = id;
+        document.getElementById('editCategoryName').value = name;
+        document.getElementById('editMarkupPercentage').value = markupPercentage;
+        document.getElementById('editCategoryForm').style.display = 'block';
+    }
+
+    function cancelEditCategory() {
+        document.getElementById('editCategoryForm').style.display = 'none';
+    }
+
+    function updateCategory() {
+        const updatedCategory = {
+            id: document.getElementById('editCategoryId').value,
+            name: document.getElementById('editCategoryName').value,
+            markupPercentage: parseFloat(document.getElementById('editMarkupPercentage').value),
+        };
+
+        const needRecalculation = document.getElementById('editNeedRecalculation').checked;
+
+        const request = {
+            categoryDto: updatedCategory,
+            needRecalculation: needRecalculation
+        };
+
+        fetch('/categories/change', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(request)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Категория обновлена.');
+                    loadCategories();
+                    cancelEditCategory();
+                } else {
+                    alert('Ошибка при обновлении категории.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка при обновлении категории:', error);
+            });
+    }
 </script>

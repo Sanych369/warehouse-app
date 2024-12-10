@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+<header>
+    <div class="container">
+        <h1 class="logo">
+            <i class="fas fa-cogs"></i> Панель администратора
+        </h1>
+        <nav class="navbar">
+            <a href="/" class="active"><i class="fas fa-home"></i> Главная</a>
+            <a href="/admin/users">Пользователи</a>
+            <a href="/admin/goods">Товары</a>
+            <a href="/admin/orders">Заказы</a>
+            <a href="/admin/store">Поставки</a>
+            <a href="/admin/companies">Контрагенты</a>
+            <a href="/admin/reports">Отчеты</a>
+            <a href="/profile">Личный кабинет</a>
+            <a href="/help">Справка</a>
+            <a href="/logout"><i class="fas fa-sign-out-alt"></i> Выйти</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section class="dashboard">
+
+        <div class="dashboard-title">
+            <h2>Добро пожаловать, Администратор!</h2>
+            <p>Здесь вы можете управлять всеми аспектами системы.</p>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="dashboard-section">
+                <a href="/admin/users" class="dashboard-item">
+                    <i class="fas fa-users"></i> Управление пользователями
+                    <div class="dashboard-tooltip">Добавление, редактирование и удаление пользователей</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="/admin/goods" class="dashboard-item">
+                    <i class="fas fa-box-open"></i> Управление товарами и категориями
+                    <div class="dashboard-tooltip">Добавление, редактирование и удаление товаров и категорий</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="/admin/companies" class="dashboard-item">
+                    <i class="fas fa-building"></i> Управление контрагентами
+                    <div class="dashboard-tooltip">Добавление, редактирование и отключение контрагентов</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="/admin/orders" class="dashboard-item">
+                    <i class="fas fa-shopping-cart"></i> Управление заказами
+                    <div class="dashboard-tooltip">Создание, редактирование и удаление заказов</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="/admin/store" class="dashboard-item">
+                    <i class="fas fa-truck-loading"></i> Управление поставками
+                    <div class="dashboard-tooltip">Добавление, редактирование и удаление поставок</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="/admin/reports" class="dashboard-item">
+                    <i class="fas fa-chart-line"></i> Отчеты
+                    <div class="dashboard-tooltip">Просмотр и анализ отчетов</div>
+                </a>
+            </div>
+
+        </div>
+    </section>
+</main>
+<footer>
+    <p>&copy; 2024 Система управления складом</p>
+</footer>
+</body>
+</html>

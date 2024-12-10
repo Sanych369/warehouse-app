@@ -1,32 +1,25 @@
 package ru.damrin.app.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ru.damrin.app.model.LoginRequest;
-import ru.damrin.app.service.LoginService;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * Контроллер для аутентификации пользователей.
  */
 @Controller
-@RequiredArgsConstructor
 @RequestMapping("/login")
 public class LoginController {
 
-  private final LoginService authService;
+  @GetMapping
+  public String showLoginPage(@RequestParam(value = "error", required = false) String error, Model model) {
+    if (StringUtils.isNotEmpty(error)) {
+      model.addAttribute("errorMessage", "Неверное имя пользователя или пароль.");
+    }
 
-  @GetMapping()
-  public String showLoginPage() {
     return "login";
-  }
-
-  @PostMapping()
-  public ResponseEntity<String> authenticate(@RequestBody LoginRequest request) {
-    return ResponseEntity.ok(authService.authenticate(request));
   }
 }

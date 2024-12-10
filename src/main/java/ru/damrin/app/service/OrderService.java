@@ -11,10 +11,10 @@ import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.db.entity.GoodEntity;
 import ru.damrin.app.db.entity.OrderEntity;
 import ru.damrin.app.db.entity.OrdersGoodsEntity;
+import ru.damrin.app.db.entity.UserEntity;
 import ru.damrin.app.db.repository.CompanyRepository;
 import ru.damrin.app.db.repository.GoodRepository;
 import ru.damrin.app.db.repository.OrdersRepository;
-import ru.damrin.app.db.repository.UserRepository;
 import ru.damrin.app.mapper.OrderMapper;
 import ru.damrin.app.model.order.CreateOrderDto;
 import ru.damrin.app.model.order.OrderDto;
@@ -32,7 +32,6 @@ public class OrderService {
   private final SortService sortService;
   private final OrderMapper orderMapper;
   private final GoodRepository goodRepository;
-  private final UserRepository userRepository;
   private final OrdersRepository ordersRepository;
   private final CompanyRepository companyRepository;
 
@@ -55,14 +54,18 @@ public class OrderService {
         .toList();
   }
 
-  public List<OrderDto> findAllByUserId(Long userId) {
-    return ordersRepository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
-        .map(orderMapper::toDto)
-        .toList();
+  public Page<OrderDto> getPageOrdersForUser(UserEntity user, String company, Long totalAmount, LocalDate dateFrom,
+                                             LocalDate dateTo, int page, int size, String sort) {
+
+    final var userId = user.getId();
+    final var pageable = PageRequest.of(page, size, sortService.getSortOrderForOrders(sort));
+
+    return ordersRepository.findAllWithFiltersForUser(userId, company, totalAmount, dateFrom, dateTo, pageable)
+        .map(orderMapper::toDto);
   }
 
   @Transactional
-  public void createOrder(CreateOrderDto orderDto) {
+  public void createOrder(CreateOrderDto orderDto, UserEntity user) {
     log.info("Create order: {}", orderDto.goodOrders());
     final var company = companyRepository.findById(orderDto.companyId())
         .orElseThrow(() -> new WarehouseAppException("Компания не найдена."));
@@ -89,10 +92,6 @@ public class OrderService {
           String.format("Товара: %s нет в наличии на складе. Замените данные позиции.", invalidQuantityGoods));
     }
 
-    //TODO: берётся из сесурьки
-    long userId = 1L;
-    var user = userRepository.findById(userId).orElse(null);
-
     var order = OrderEntity.builder()
         .user(user)
         .company(companyRepository.getReferenceById(orderDto.companyId()))
@@ -104,7 +103,9 @@ public class OrderService {
           .findFirst()
           .orElseThrow(() -> new WarehouseAppException(
               String.format("Товар с идентификатором %s не найден в базе. Невозможно создать заказ.", goodOrderDto.goodId())));
+
       var newBalance = good.getBalance() - goodOrderDto.quantity();
+
       if (newBalance < 0) {
         throw new WarehouseAppException(
             String.format("Нет необходимого количества %s на остатках. Проверьте наличие.", good.getName()));
@@ -121,6 +122,6 @@ public class OrderService {
     });
 
     ordersRepository.save(order);
-    log.info("Order created: {}", order.getId());
+    log.info("Order created successfully");
   }
 }

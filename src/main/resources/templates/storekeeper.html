@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель кладовщика</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+<header>
+    <div class="container">
+        <h1 class="logo">
+            <i class="fas fa-warehouse"></i> Панель кладовщика
+        </h1>
+        <nav class="navbar">
+            <a href="/">Главная</a>
+            <a href="storekeeper/goods">Товары</a>
+            <a href="storekeeper/store">Поставки</a>
+            <a href="storekeeper/companies">Контрагенты</a>
+            <a href="storekeeper/reports">Отчеты</a>
+            <a href="/profile">Личный кабинет</a>
+            <a href="/help">Справка</a>
+            <a href="/logout">Выйти</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <section class="dashboard">
+
+        <div class="dashboard-title">
+            <h2>Добро пожаловать, Кладовщик!</h2>
+            <p>Здесь вы можете управлять всеми аспектами системы.</p>
+        </div>
+
+        <div class="dashboard-container">
+
+            <div class="dashboard-section">
+                <a href="storekeeper/goods" class="dashboard-item">
+                    <i class="fas fa-box-open"></i> Управление товарами и категориями
+                    <div class="dashboard-tooltip">Добавление, редактирование и удаление товаров и категорий</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="storekeeper/companies" class="dashboard-item">
+                    <i class="fas fa-building"></i> Управление контрагентами
+                    <div class="dashboard-tooltip">Добавление, редактирование и отключение контрагентов</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="storekeeper/store" class="dashboard-item">
+                    <i class="fas fa-truck-loading"></i> Управление поставками
+                    <div class="dashboard-tooltip">Добавление, редактирование и удаление поставок</div>
+                </a>
+            </div>
+
+            <div class="dashboard-section">
+                <a href="storekeeper/reports" class="dashboard-item">
+                    <i class="fas fa-chart-line"></i> Отчеты
+                    <div class="dashboard-tooltip">Просмотр и анализ отчетов</div>
+                </a>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Система управления складом</p>
+</footer>
+
+</body>
+</html>

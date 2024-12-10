@@ -5,27 +5,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-/**
- * Контроллер для обработки запросов панели Администратора.
- */
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/storekeeper")
 @RequiredArgsConstructor
-public class AdminController {
+public class StorekeeperController {
 
   @GetMapping
   public String showDashboard() {
-    return "admin";
-  }
-
-  @GetMapping("/orders")
-  public String showOrdersPage() {
-    return "orders";
-  }
-
-  @GetMapping("/users")
-  public String showUsersPage() {
-    return "users";
+    return "storekeeper";
   }
 
   @GetMapping("/goods")

@@ -14,6 +14,7 @@ import ru.damrin.app.mapper.OrdersGoodsMapper;
 import ru.damrin.app.model.OrdersGoodsDto;
 import ru.damrin.app.model.order.AddGoodToOrderDto;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Slf4j
@@ -48,6 +49,10 @@ public class OrdersGoodsService {
       var order = ordersRepository.findById(addGood.orderId())
           .orElseThrow(() -> new WarehouseAppException("Заказ не найден"));
 
+      if (order.getCreatedAt().isBefore(LocalDate.now())) {
+        throw new WarehouseAppException("Невозможно изменить ранее созданные заказы");
+      }
+
       good.setBalance(good.getBalance() - quantity);
 
       order.addOrdersGoods(OrdersGoodsEntity.builder()
@@ -68,10 +73,14 @@ public class OrdersGoodsService {
       var orderGood = ordersGoodsRepository.findById(ordersGoodsDto.id())
           .orElseThrow(() -> new WarehouseAppException("Данный товар не найден в заказе."));
 
+      if (orderGood.getOrder().getCreatedAt().isBefore(LocalDate.now())) {
+        throw new WarehouseAppException("Невозможно изменить ранее созданные заказы");
+      }
+
       final var newQuantity = ordersGoodsDto.quantity();
       var good = checkGoodAndSetNewBalance(orderGood, newQuantity);
-      orderGood.setGood(good);
 
+      orderGood.setGood(good);
       orderGood.setQuantity(newQuantity);
       orderGood.setSum(newQuantity * good.getSalePrice());
       orderGood.getOrder().addOrdersGoods(orderGood);
@@ -91,6 +100,10 @@ public class OrdersGoodsService {
 
     if (order == null) {
       throw new WarehouseAppException("Заказ отсутствует для данной позиции. Обновите список заказов.");
+    }
+
+    if (order.getCreatedAt().isBefore(LocalDate.now())) {
+      throw new WarehouseAppException("Невозможно изменить ранее созданные заказы");
     }
 
     log.info("Deleting good: {} from order with id: {}", goodName, order.getId());

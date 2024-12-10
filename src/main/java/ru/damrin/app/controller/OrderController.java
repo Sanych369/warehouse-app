@@ -3,12 +3,14 @@ package ru.damrin.app.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import ru.damrin.app.db.entity.UserEntity;
 import ru.damrin.app.model.OrdersGoodsDto;
 import ru.damrin.app.model.order.AddGoodToOrderDto;
 import ru.damrin.app.model.order.CreateOrderDto;
@@ -44,16 +46,24 @@ public class OrderController {
       @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
       @RequestParam(value = "sort", required = false) String sort) {
 
-    Page<OrderDto> orders = service.getPageOrders(user, company, totalAmount, dateFrom, dateTo, page, size, sort);
-
+    final var orders = service.getPageOrders(user, company, totalAmount, dateFrom, dateTo, page, size, sort);
     return ResponseEntity.ok(orders);
   }
 
   @GetMapping("/my")
-  public ResponseEntity<List<OrderDto>> getMyOrder() {
-//  TODO: тут возврат по юзеру из контекста сесурити
-    long userId = 1L;
-    return ResponseEntity.ok(service.findAllByUserId(userId));
+  public ResponseEntity<Page<OrderDto>> getMyOrders(
+      @RequestParam(value = "page", defaultValue = "0") int page,
+      @RequestParam(value = "size", defaultValue = "10") int size,
+      @RequestParam(value = "company", required = false) String company,
+      @RequestParam(value = "totalAmount", required = false) Long totalAmount,
+      @RequestParam(value = "dateFrom", required = false) LocalDate dateFrom,
+      @RequestParam(value = "dateTo", required = false) LocalDate dateTo,
+      @RequestParam(value = "sort", required = false) String sort,
+      @AuthenticationPrincipal UserEntity user) {
+
+    final var orders = service.getPageOrdersForUser(
+        user, company, totalAmount, dateFrom, dateTo, page, size, sort);
+    return ResponseEntity.ok(orders);
   }
 
   @GetMapping("/all")
@@ -62,8 +72,9 @@ public class OrderController {
   }
 
   @PostMapping("/create")
-  public ResponseEntity<Void> createOrder(@RequestBody CreateOrderDto createOrderDto) {
-    service.createOrder(createOrderDto);
+  public ResponseEntity<Void> createOrder(@RequestBody CreateOrderDto createOrderDto,
+                                          @AuthenticationPrincipal UserEntity user) {
+    service.createOrder(createOrderDto, user);
     return ResponseEntity.status(CREATED).build();
   }
 

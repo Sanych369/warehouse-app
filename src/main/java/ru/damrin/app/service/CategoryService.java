@@ -23,7 +23,6 @@ import java.util.List;
 public class CategoryService {
 
   private final CategoryMapper mapper;
-  private final GoodService goodService;
   private final SortService sortService;
   private final CategoryRepository repository;
 
@@ -59,7 +58,7 @@ public class CategoryService {
             String.format("Категория товара: %s не найдена. Проверьте правильность и наличие данной категории",
                 request.categoryDto().name())));
 
-    var categoryName = category.getName();
+    final var categoryName = category.getName();
 
     if (request.needRecalculation() && categoryDto.markupPercentage().compareTo(category.getMarkupPercentage()) != 0) {
       log.info("Starting recalculation sale price goods for category: {} to percentage: {}",

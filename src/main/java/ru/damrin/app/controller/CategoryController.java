@@ -16,7 +16,6 @@ import ru.damrin.app.common.exception.WarehouseAppException;
 import ru.damrin.app.model.category.CategoryDto;
 import ru.damrin.app.model.category.CategoryRequest;
 import ru.damrin.app.service.CategoryService;
-import ru.damrin.app.service.SortService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,7 +31,6 @@ import static java.util.Objects.isNull;
 public class CategoryController {
 
   private final CategoryService categoryService;
-  private final SortService sortService;
 
   @GetMapping("/list")
   public ResponseEntity<List<CategoryDto>> getAllCategories() {
@@ -48,7 +46,7 @@ public class CategoryController {
       @RequestParam(value = "markupPercentage", required = false) BigDecimal markupPercentage,
       @RequestParam(value = "sort", required = false) String sort) {
 
-    Page<CategoryDto> categories = categoryService.getPageCategories(name, markupPercentage, page, size, sort);
+    final var categories = categoryService.getPageCategories(name, markupPercentage, page, size, sort);
     return ResponseEntity.ok(categories);
   }
 

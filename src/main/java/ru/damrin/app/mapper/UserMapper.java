@@ -1,6 +1,7 @@
 package ru.damrin.app.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -13,10 +14,13 @@ import ru.damrin.app.model.UserDto;
     nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
 
+  @Mapping(target = "password", ignore = true)
   UserEntity toEntity(UserDto userDto);
 
+  @Mapping(target = "password", ignore = true)
   UserDto toDto(UserEntity userEntity);
 
+  @Mapping(target = "password", ignore = true)
   UserEntity partialUpdate(UserDto userDto, @MappingTarget UserEntity userEntity);
 
   default String map(Position position) {

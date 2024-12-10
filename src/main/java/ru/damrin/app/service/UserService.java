@@ -1,13 +1,9 @@
 package ru.damrin.app.service;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.damrin.app.common.exception.WarehouseAppException;
@@ -28,50 +24,56 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   public Page<UserDto> getUsersPage(int page, int size, String name, String surname, String position, String email, String sort) {
-    Sort sortOrder = sortService.getSortOrderForUsers(sort);
-    Pageable pageable = PageRequest.of(page, size, sortOrder);
+    final var sortOrder = sortService.getSortOrderForUsers(sort);
+    final var pageable = PageRequest.of(page, size, sortOrder);
     return userRepository.findByFilters(name, surname, position, email, pageable).map(userMapper::toDto);
   }
 
   public List<UserDto> getAllUsers() {
-    return userRepository.findAll().stream().map(userMapper::toDto).toList();
+    return userRepository.findAll().stream()
+        .map(userMapper::toDto)
+        .toList();
   }
 
   public void deleteUserByEmail(String email) {
-    UserEntity user = userRepository.findByEmail(email)
-        .orElseThrow(() -> new WarehouseAppException(String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
+    final var user = userRepository.findByEmail(email).orElseThrow(() -> new WarehouseAppException(
+        String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
     userRepository.delete(user);
   }
 
   public void saveUser(UserDto userDto) {
-    UserEntity userEntity = userMapper.toEntity(userDto);
+    var userEntity = userMapper.toEntity(userDto);
+
+    if (StringUtils.isEmpty(userEntity.getPassword())) {
+      throw new WarehouseAppException("Пароль отсутствует.");
+    }
+
     userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
     userRepository.save(userEntity);
   }
 
   public UserDto getUserByEmail(String email) {
-    UserEntity userEntity = userRepository.findByEmail(email)
-        .orElseThrow(() -> new WarehouseAppException(String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
-
+    final var userEntity = userRepository.findByEmail(email)
+        .orElseThrow(() -> new WarehouseAppException(
+            String.format("Пользователь с email %s не найден. Проверьте правильность ввода", email)));
     return userMapper.toDto(userEntity);
   }
 
   public void updateUser(UserDto userDto) {
-    UserEntity user = userRepository.findByEmail(userDto.email())
+    var user = userRepository.findByEmail(userDto.email())
         .orElseThrow(() -> new WarehouseAppException(
             String.format("Пользователь с email %s не найден. Проверьте правильность ввода", userDto.email())));
-    UserEntity updatedUser = userMapper.partialUpdate(userDto, user);
+    var updatedUser = userMapper.partialUpdate(userDto, user);
 
-    if (userDto.password() != null && !userDto.password().isEmpty()) {
-      user.setPassword(passwordEncoder.encode(userDto.password()));
+    if (StringUtils.isEmpty(user.getPassword())) {
+      throw new WarehouseAppException("Новый пароль не может быть пустым");
     }
+
+    updatedUser.setPassword(passwordEncoder.encode(userDto.password()));
     userRepository.save(updatedUser);
   }
 
-  public UserDto getProfile() {
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-    String email = userDetails.getUsername();
-    return getUserByEmail(email);
+  public UserDto getProfile(UserEntity userEntity) {
+    return userMapper.toDto(userEntity);
   }
 }

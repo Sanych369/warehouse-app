@@ -38,18 +38,19 @@ public class GoodsController {
       @RequestParam(required = false) Long balance,
       @RequestParam(required = false) String sort) {
 
-    Page<GoodDto> goods = goodService.getGoods(name, category, purchasePrice, salePrice, balance, sort, page, size);
+    final var goods = goodService.getGoods(name, category, purchasePrice, salePrice, balance, sort, page, size);
     return ResponseEntity.ok(goods);
   }
 
   @GetMapping("/goods-for-order")
   public ResponseEntity<Page<GoodDto>> getGoodsForOrder(
       @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
+      @RequestParam(defaultValue = "5") int size,
       @RequestParam(required = false) String name,
-      @RequestParam(required = false) Long categoryId
-  ) {
-    Page<GoodDto> goods = goodService.getGoodsForOrder(name, categoryId, page, size);
+      @RequestParam(required = false) Long categoryId,
+      @RequestParam(required = false) Long price,
+      @RequestParam(required = false) Long balance) {
+    final var goods = goodService.getGoodsForOrder(name, categoryId,  price, balance, page, size);
     return ResponseEntity.ok(goods);
   }
 
